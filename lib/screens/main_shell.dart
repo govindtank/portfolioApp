@@ -8,6 +8,8 @@ import 'projects_screen.dart';
 import 'blog_screen.dart';
 import 'resume_screen.dart';
 
+import '../core/widgets/ambient_background.dart';
+
 class MainShell extends StatefulWidget {
   final int initialTab;
 
@@ -47,9 +49,10 @@ class _MainShellState extends State<MainShell> {
       const ResumeScreen(),
     ];
 
-    return Scaffold(
-      backgroundColor: isDark ? AppColors.darkBackground : AppColors.lightBackground,
-      appBar: AppBar(
+    return AmbientBackground(
+      child: Scaffold(
+        backgroundColor: Colors.transparent,
+        appBar: AppBar(
         backgroundColor: (isDark ? AppColors.darkSurface : AppColors.lightSurface).withOpacity(0.9),
         elevation: 0,
         title: Row(
@@ -94,59 +97,12 @@ class _MainShellState extends State<MainShell> {
           ],
         ),
         actions: [
-          // Accent Color Menu
-          PopupMenuButton<String>(
-            tooltip: 'Change Theme Accent',
-            icon: Icon(Icons.palette_outlined, color: primary, size: 20),
-            color: isDark ? AppColors.darkSurfaceElevated : AppColors.lightSurfaceElevated,
-            onSelected: (name) => themeProvider.setAccent(name),
-            itemBuilder: (context) {
-              return ThemeProvider.accentColors.entries.map((entry) {
-                final isSelected = themeProvider.accentName == entry.key;
-                return PopupMenuItem<String>(
-                  value: entry.key,
-                  child: Row(
-                    children: [
-                      Container(
-                        width: 14,
-                        height: 14,
-                        decoration: BoxDecoration(
-                          shape: BoxShape.circle,
-                          color: entry.value,
-                        ),
-                      ),
-                      const SizedBox(width: 10),
-                      Text(
-                        entry.key,
-                        style: TextStyle(
-                          fontSize: 13,
-                          fontWeight: isSelected ? FontWeight.w700 : FontWeight.w400,
-                          color: isSelected
-                              ? primary
-                              : (isDark ? AppColors.darkTextPrimary : AppColors.lightTextPrimary),
-                        ),
-                      ),
-                      if (isSelected) ...[
-                        const Spacer(),
-                        Icon(Icons.check, size: 16, color: primary),
-                      ],
-                    ],
-                  ),
-                );
-              }).toList();
-            },
-          ),
-          // Dark/Light Mode Toggle
           IconButton(
-            tooltip: isDark ? 'Switch to Light Mode' : 'Switch to Dark Mode',
-            icon: Icon(
-              isDark ? Icons.light_mode_outlined : Icons.dark_mode_outlined,
-              size: 20,
-              color: isDark ? AppColors.darkTextSecondary : AppColors.lightTextSecondary,
-            ),
-            onPressed: themeProvider.toggleTheme,
+            tooltip: 'Theme Customization',
+            icon: Icon(Icons.tune_rounded, color: isDark ? AppColors.darkTextPrimary : AppColors.lightTextPrimary, size: 22),
+            onPressed: () => _showThemeSettings(context, themeProvider),
           ),
-          const SizedBox(width: 6),
+          const SizedBox(width: 8),
         ],
       ),
       body: IndexedStack(
@@ -155,7 +111,7 @@ class _MainShellState extends State<MainShell> {
       ),
       bottomNavigationBar: Container(
         decoration: BoxDecoration(
-          color: (isDark ? AppColors.darkSurface : AppColors.lightSurface).withOpacity(0.95),
+          color: (isDark ? AppColors.darkSurface : AppColors.lightSurface).withOpacity(0.85),
           border: Border(
             top: BorderSide(
               color: isDark ? AppColors.darkBorder : AppColors.lightBorder,
@@ -167,7 +123,7 @@ class _MainShellState extends State<MainShell> {
           selectedIndex: _currentIndex,
           onDestinationSelected: _onTabSelected,
           backgroundColor: Colors.transparent,
-          indicatorColor: primary.withOpacity(0.18),
+          indicatorColor: primary.withOpacity(isDark ? 0.25 : 0.15),
           elevation: 0,
           labelBehavior: NavigationDestinationLabelBehavior.alwaysShow,
           destinations: [
@@ -190,6 +146,192 @@ class _MainShellState extends State<MainShell> {
               icon: const Icon(Icons.badge_outlined),
               selectedIcon: Icon(Icons.badge_rounded, color: primary),
               label: 'Resume',
+            ),
+          ],
+        ),
+      ),
+    ));
+  }
+
+  void _showThemeSettings(BuildContext context, ThemeProvider provider) {
+    final isDark = provider.isDarkMode;
+    
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: Colors.transparent,
+      isScrollControlled: true,
+      builder: (context) {
+        return Container(
+          padding: const EdgeInsets.all(24),
+          decoration: BoxDecoration(
+            color: isDark ? AppColors.darkSurfaceElevated : AppColors.lightSurfaceElevated,
+            borderRadius: const BorderRadius.vertical(top: Radius.circular(28)),
+            border: Border.all(color: isDark ? AppColors.darkBorder : AppColors.lightBorder),
+          ),
+          child: SafeArea(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text(
+                      'Appearance',
+                      style: GoogleFonts.spaceGrotesk(
+                        fontSize: 22,
+                        fontWeight: FontWeight.w700,
+                        color: isDark ? AppColors.darkTextPrimary : AppColors.lightTextPrimary,
+                      ),
+                    ),
+                    IconButton(
+                      icon: const Icon(Icons.close_rounded),
+                      onPressed: () => Navigator.pop(context),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 24),
+                Text(
+                  'THEME MODE',
+                  style: TextStyle(
+                    fontSize: 12,
+                    fontWeight: FontWeight.w700,
+                    letterSpacing: 1.2,
+                    color: isDark ? AppColors.darkTextMuted : AppColors.lightTextMuted,
+                  ),
+                ),
+                const SizedBox(height: 12),
+                Row(
+                  children: [
+                    Expanded(
+                      child: _buildThemeModeCard(
+                        context: context,
+                        icon: Icons.light_mode_rounded,
+                        label: 'Light',
+                        isSelected: !isDark,
+                        onTap: () {
+                          provider.setDarkMode(false);
+                          Navigator.pop(context);
+                        },
+                        isDarkView: isDark,
+                      ),
+                    ),
+                    const SizedBox(width: 16),
+                    Expanded(
+                      child: _buildThemeModeCard(
+                        context: context,
+                        icon: Icons.dark_mode_rounded,
+                        label: 'Dark',
+                        isSelected: isDark,
+                        onTap: () {
+                          provider.setDarkMode(true);
+                          Navigator.pop(context);
+                        },
+                        isDarkView: isDark,
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 32),
+                Text(
+                  'ACCENT COLOR',
+                  style: TextStyle(
+                    fontSize: 12,
+                    fontWeight: FontWeight.w700,
+                    letterSpacing: 1.2,
+                    color: isDark ? AppColors.darkTextMuted : AppColors.lightTextMuted,
+                  ),
+                ),
+                const SizedBox(height: 16),
+                Wrap(
+                  spacing: 12,
+                  runSpacing: 12,
+                  children: ThemeProvider.accentColors.entries.map((entry) {
+                    final isSelected = provider.accentName == entry.key;
+                    return InkWell(
+                      onTap: () {
+                         provider.setAccent(entry.key);
+                      },
+                      borderRadius: BorderRadius.circular(30),
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                        decoration: BoxDecoration(
+                          color: isSelected ? entry.value.withOpacity(0.15) : Colors.transparent,
+                          borderRadius: BorderRadius.circular(30),
+                          border: Border.all(
+                            color: isSelected ? entry.value : (isDark ? AppColors.darkBorderLight : AppColors.lightBorder),
+                          ),
+                        ),
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Container(
+                              width: 14,
+                              height: 14,
+                              decoration: BoxDecoration(
+                                shape: BoxShape.circle,
+                                color: entry.value,
+                              ),
+                            ),
+                            const SizedBox(width: 8),
+                            Text(
+                              entry.key,
+                              style: TextStyle(
+                                fontSize: 13,
+                                fontWeight: isSelected ? FontWeight.w600 : FontWeight.w500,
+                                color: isDark ? AppColors.darkTextPrimary : AppColors.lightTextPrimary,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    );
+                  }).toList(),
+                ),
+                const SizedBox(height: 16),
+              ],
+            ),
+          ),
+        );
+      },
+    );
+  }
+
+  Widget _buildThemeModeCard({
+    required BuildContext context,
+    required IconData icon,
+    required String label,
+    required bool isSelected,
+    required VoidCallback onTap,
+    required bool isDarkView,
+  }) {
+    final primary = Theme.of(context).colorScheme.primary;
+    return InkWell(
+      onTap: onTap,
+      borderRadius: BorderRadius.circular(16),
+      child: Container(
+        padding: const EdgeInsets.symmetric(vertical: 20),
+        decoration: BoxDecoration(
+          color: isSelected 
+              ? primary.withOpacity(isDarkView ? 0.15 : 0.08)
+              : (isDarkView ? AppColors.darkSurface : AppColors.lightSurface),
+          borderRadius: BorderRadius.circular(16),
+          border: Border.all(
+            color: isSelected ? primary : (isDarkView ? AppColors.darkBorder : AppColors.lightBorder),
+            width: isSelected ? 2 : 1,
+          ),
+        ),
+        child: Column(
+          children: [
+            Icon(icon, size: 32, color: isSelected ? primary : (isDarkView ? AppColors.darkTextMuted : AppColors.lightTextMuted)),
+            const SizedBox(height: 12),
+            Text(
+              label,
+              style: TextStyle(
+                fontSize: 15,
+                fontWeight: isSelected ? FontWeight.w700 : FontWeight.w500,
+                color: isSelected ? primary : (isDarkView ? AppColors.darkTextPrimary : AppColors.lightTextPrimary),
+              ),
             ),
           ],
         ),
