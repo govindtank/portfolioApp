@@ -1,9 +1,11 @@
+import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
-import 'dart:math' as math;
-
-import 'home_page.dart';
+import 'package:google_fonts/google_fonts.dart';
+import 'package:animated_text_kit/animated_text_kit.dart';
+import '../core/theme/app_theme.dart';
 import '../services/visitor_counter_service.dart';
+import 'main_shell.dart';
 
 class SplashScreen extends StatefulWidget {
   const SplashScreen({super.key});
@@ -14,36 +16,29 @@ class SplashScreen extends StatefulWidget {
 
 class _SplashScreenState extends State<SplashScreen> with SingleTickerProviderStateMixin {
   final VisitorCounterService _visitorCounterService = VisitorCounterService();
-  late AnimationController _orbitController;
 
   @override
   void initState() {
     super.initState();
-    _orbitController = AnimationController(
-      vsync: this,
-      duration: const Duration(seconds: 8),
-    )..repeat();
-    _initializeAndNavigate();
+    _initializeApp();
   }
 
-  @override
-  void dispose() {
-    _orbitController.dispose();
-    super.dispose();
-  }
-
-  Future<void> _initializeAndNavigate() async {
+  Future<void> _initializeApp() async {
     try {
       await _visitorCounterService.incrementVisitorCount();
     } catch (e) {
-      // Don't block navigation on analytics/local-storage failures
-      debugPrint('Failed to increment visitor count: $e');
+      debugPrint('Visitor counter skipped: $e');
     }
-    await Future.delayed(const Duration(milliseconds: 3000));
+
+    await Future.delayed(const Duration(milliseconds: 2600));
     if (mounted) {
       Navigator.of(context).pushReplacement(
-        MaterialPageRoute(
-          builder: (context) => const HomePage(),
+        PageRouteBuilder(
+          transitionDuration: const Duration(milliseconds: 600),
+          pageBuilder: (context, animation, secondaryAnimation) => const MainShell(),
+          transitionsBuilder: (context, animation, secondaryAnimation, child) {
+            return FadeTransition(opacity: animation, child: child);
+          },
         ),
       );
     }
@@ -52,48 +47,10 @@ class _SplashScreenState extends State<SplashScreen> with SingleTickerProviderSt
   @override
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
-    final screenSize = MediaQuery.of(context).size;
-    final screenWidth = screenSize.width;
-    final bool isMobile = screenWidth < 600;
-    final bool isTablet = screenWidth >= 600 && screenWidth < 1200;
-    final bool isDesktop = screenWidth >= 1200;
-
-    // Responsive values based on screen width
-    double profileSize, nameFontSize, roleFontSize, taglineFontSize;
-    double spacingSmall, spacingMedium, spacingLarge;
-    double loadingIndicatorSize;
-
-    if (isMobile) {
-      profileSize = 280.0;
-      nameFontSize = 28.0;
-      roleFontSize = 16.0;
-      taglineFontSize = 14.0;
-      spacingSmall = 20.0;
-      spacingMedium = 30.0;
-      spacingLarge = 40.0;
-      loadingIndicatorSize = 60.0;
-    } else if (isTablet) {
-      profileSize = 320.0;
-      nameFontSize = 34.0;
-      roleFontSize = 18.0;
-      taglineFontSize = 15.0;
-      spacingSmall = 30.0;
-      spacingMedium = 40.0;
-      spacingLarge = 50.0;
-      loadingIndicatorSize = 70.0;
-    } else {
-      // Desktop
-      profileSize = 360.0;
-      nameFontSize = 40.0;
-      roleFontSize = 20.0;
-      taglineFontSize = 16.0;
-      spacingSmall = 40.0;
-      spacingMedium = 50.0;
-      spacingLarge = 60.0;
-      loadingIndicatorSize = 80.0;
-    }
+    final primary = Theme.of(context).colorScheme.primary;
 
     return Scaffold(
+      backgroundColor: isDark ? AppColors.darkBackground : AppColors.lightBackground,
       body: Container(
         width: double.infinity,
         height: double.infinity,
@@ -101,319 +58,212 @@ class _SplashScreenState extends State<SplashScreen> with SingleTickerProviderSt
           gradient: LinearGradient(
             colors: isDark
                 ? [
-                    const Color(0xFF121212),
-                    const Color(0xFF1A1A2E),
+                    const Color(0xFF070B12),
                     const Color(0xFF0F172A),
+                    const Color(0xFF1E1B4B),
                   ]
                 : [
-                    const Color(0xFFF8F9FF),
-                    const Color(0xFFE8EEFF),
-                    const Color(0xFFDDE5FF),
+                    const Color(0xFFF8FAFC),
+                    const Color(0xFFEEF2FF),
+                    const Color(0xFFE0E7FF),
                   ],
             begin: Alignment.topLeft,
             end: Alignment.bottomRight,
-            stops: const [0.0, 0.5, 1.0],
           ),
         ),
         child: SafeArea(
-          child: Stack(
-            children: [
-              // Animated background particles
-              ..._buildBackgroundParticles(isDark),
-              
-              // Main content
-              Center(
-                child: SingleChildScrollView(
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
+          child: Center(
+            child: SingleChildScrollView(
+              padding: const EdgeInsets.symmetric(horizontal: 24),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  // Status Badge
+                  Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
+                    decoration: BoxDecoration(
+                      color: primary.withOpacity(0.12),
+                      borderRadius: BorderRadius.circular(20),
+                      border: Border.all(color: primary.withOpacity(0.35)),
+                    ),
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Container(
+                          width: 7,
+                          height: 7,
+                          decoration: BoxDecoration(
+                            shape: BoxShape.circle,
+                            color: primary,
+                          ),
+                        ),
+                        const SizedBox(width: 8),
+                        Text(
+                          'SYSTEM ARCHITECTURE • ENTERPRISE MOBILE',
+                          style: TextStyle(
+                            color: primary,
+                            fontSize: 11,
+                            fontWeight: FontWeight.w700,
+                            letterSpacing: 1.0,
+                          ),
+                        ),
+                      ],
+                    ),
+                  )
+                      .animate()
+                      .fadeIn(duration: 400.ms)
+                      .slideY(begin: -0.2, duration: 400.ms),
+
+                  const SizedBox(height: 32),
+
+                  // Avatar with Ambient Halo Glow (Breathing, NOT spinning)
+                  Stack(
+                    alignment: Alignment.center,
                     children: [
-                      SizedBox(height: spacingSmall),
-                      
-                      // Profile Picture with Orbital Animation
-                      SizedBox(
-                        height: profileSize,
-                        width: profileSize,
-                        child: Stack(
-                          alignment: Alignment.center,
-                          children: [
-                            // Orbital rings
-                            _buildOrbitalRings(isDark, profileSize),
-                            
-                            // Rotating profile picture
-                            AnimatedBuilder(
-                              animation: _orbitController,
-                              builder: (context, child) {
-                                return Transform.rotate(
-                                  angle: _orbitController.value * 2 * math.pi,
-                                  child: child,
-                                );
-                              },
-                              child: Container(
-                                width: profileSize * 0.75, // 75% of profileSize for the image
-                                height: profileSize * 0.75,
-                                decoration: BoxDecoration(
-                                  shape: BoxShape.circle,
-                                  image: const DecorationImage(
-                                    image: AssetImage('assets/images/profile.png'),
-                                    fit: BoxFit.cover,
-                                  ),
-                                  boxShadow: [
-                                    BoxShadow(
-                                      color: const Color(0xFF6C63FF).withOpacity(0.6),
-                                      blurRadius: 40,
-                                      spreadRadius: 10,
-                                    ),
-                                    BoxShadow(
-                                      color: const Color(0xFFFF6584).withOpacity(0.3),
-                                      blurRadius: 60,
-                                      spreadRadius: 20,
-                                    ),
-                                  ],
-                                  border: Border.all(
-                                    color: isDark
-                                        ? const Color(0xFF6C63FF).withOpacity(0.5)
-                                        : const Color(0xFF6C63FF).withOpacity(0.3),
-                                    width: 3,
-                                  ),
-                                ),
-                              ),
-                            ).animate().scale(
-                              begin: const Offset(0, 0),
-                              end: const Offset(1, 1),
-                              duration: 800.ms,
-                              curve: Curves.elasticOut,
+                      // Ambient outer pulse halo
+                      Container(
+                        width: 170,
+                        height: 170,
+                        decoration: BoxDecoration(
+                          shape: BoxShape.circle,
+                          color: primary.withOpacity(0.15),
+                        ),
+                      ).animate(onPlay: (c) => c.repeat(reverse: true)).scale(
+                            begin: const Offset(0.95, 0.95),
+                            end: const Offset(1.1, 1.1),
+                            duration: 1800.ms,
+                          ),
+
+                      // Gradient border ring
+                      Container(
+                        width: 154,
+                        height: 154,
+                        decoration: BoxDecoration(
+                          shape: BoxShape.circle,
+                          gradient: SweepGradient(
+                            colors: [
+                              primary,
+                              AppColors.secondary,
+                              AppColors.accentNeon,
+                              primary,
+                            ],
+                          ),
+                          boxShadow: [
+                            BoxShadow(
+                              color: primary.withOpacity(0.4),
+                              blurRadius: 24,
+                              spreadRadius: 2,
                             ),
                           ],
                         ),
                       ),
-                      
-                      SizedBox(height: spacingMedium),
-                      
-                      // Name
-                      Text(
-                        'Govind Tank',
-                        textAlign: TextAlign.center,
-                        style: TextStyle(
-                          color: isDark ? Colors.white : const Color(0xFF121212),
-                          fontSize: nameFontSize,
-                          fontWeight: FontWeight.bold,
-                          letterSpacing: 1,
+
+                      // Gap ring
+                      Container(
+                        width: 146,
+                        height: 146,
+                        decoration: BoxDecoration(
+                          shape: BoxShape.circle,
+                          color: isDark ? AppColors.darkBackground : AppColors.lightBackground,
                         ),
-                      )
-                          .animate()
-                          .fadeIn(delay: 600.ms, duration: 600.ms)
-                          .slideY(begin: 0.3, end: 0, delay: 600.ms, duration: 600.ms),
-                      
-                      const SizedBox(height: 12),
-                      
-                      // Role with gradient text
-                      ShaderMask(
-                        shaderCallback: (bounds) => LinearGradient(
-                          colors: [
-                            const Color(0xFF6C63FF),
-                            const Color(0xFFFF6584),
-                            const Color(0xFF00E5FF),
-                          ],
-                        ).createShader(bounds),
-                        child: Text(
-                          'Senior Mobile Developer',
-                          textAlign: TextAlign.center,
-                          style: TextStyle(
-                            color: Colors.white,
-                            fontSize: roleFontSize,
-                            fontWeight: FontWeight.w600,
-                            letterSpacing: 0.5,
+                      ),
+
+                      // Headshot Photo
+                      Container(
+                        width: 140,
+                        height: 140,
+                        decoration: const BoxDecoration(
+                          shape: BoxShape.circle,
+                          image: DecorationImage(
+                            image: AssetImage('assets/images/profile.png'),
+                            fit: BoxFit.cover,
                           ),
                         ),
-                      )
-                          .animate()
-                          .fadeIn(delay: 800.ms, duration: 600.ms)
-                          .slideY(begin: 0.3, end: 0, delay: 800.ms, duration: 600.ms),
-                      
-                      const SizedBox(height: 8),
-                      
-                      // Tagline
-                      Text(
-                        'Kotlin • Flutter • Web',
-                        textAlign: TextAlign.center,
-                        style: TextStyle(
-                          color: isDark
-                              ? Colors.white70
-                              : const Color(0xFF666666),
-                          fontSize: taglineFontSize,
-                          fontWeight: FontWeight.w400,
-                          letterSpacing: 2,
-                        ),
-                      )
-                          .animate()
-                          .fadeIn(delay: 1000.ms, duration: 600.ms)
-                          .slideY(begin: 0.3, end: 0, delay: 1000.ms, duration: 600.ms),
-                      
-                      SizedBox(height: spacingLarge),
-                      
-                      // Animated loading indicator
-                      _buildCustomLoadingIndicator(isDark, loadingIndicatorSize)
-                          .animate()
-                          .fadeIn(delay: 1200.ms, duration: 400.ms),
-                      
-                      SizedBox(height: spacingLarge),
+                      ),
                     ],
+                  )
+                      .animate()
+                      .fadeIn(delay: 200.ms, duration: 500.ms)
+                      .scale(begin: const Offset(0.85, 0.85), end: const Offset(1, 1), curve: Curves.easeOutBack),
+
+                  const SizedBox(height: 28),
+
+                  // Name
+                  Text(
+                    'Govind Tank',
+                    textAlign: TextAlign.center,
+                    style: GoogleFonts.spaceGrotesk(
+                      fontSize: 34,
+                      fontWeight: FontWeight.w800,
+                      color: isDark ? AppColors.darkTextPrimary : AppColors.lightTextPrimary,
+                      letterSpacing: -0.5,
+                    ),
+                  )
+                      .animate()
+                      .fadeIn(delay: 350.ms, duration: 400.ms)
+                      .slideY(begin: 0.15, duration: 400.ms),
+
+                  const SizedBox(height: 8),
+
+                  // Animated Role
+                  SizedBox(
+                    height: 28,
+                    child: DefaultTextStyle(
+                      style: GoogleFonts.spaceGrotesk(
+                        fontSize: 17,
+                        fontWeight: FontWeight.w600,
+                        color: primary,
+                      ),
+                      child: AnimatedTextKit(
+                        animatedTexts: [
+                          TypewriterAnimatedText(
+                            'Senior Lead Architect & Android Expert',
+                            speed: const Duration(milliseconds: 50),
+                          ),
+                        ],
+                        totalRepeatCount: 1,
+                      ),
+                    ),
                   ),
-                ),
+
+                  const SizedBox(height: 10),
+
+                  // Tech Stack Tagline
+                  Text(
+                    'Kotlin • Flutter Impeller • KMP • AI Systems',
+                    textAlign: TextAlign.center,
+                    style: TextStyle(
+                      fontSize: 13,
+                      fontWeight: FontWeight.w500,
+                      letterSpacing: 1.5,
+                      color: isDark ? AppColors.darkTextMuted : AppColors.lightTextMuted,
+                    ),
+                  )
+                      .animate()
+                      .fadeIn(delay: 600.ms, duration: 400.ms),
+
+                  const SizedBox(height: 36),
+
+                  // Sleek Linear Progress Bar
+                  SizedBox(
+                    width: 140,
+                    child: ClipRRect(
+                      borderRadius: BorderRadius.circular(4),
+                      child: LinearProgressIndicator(
+                        minHeight: 3,
+                        backgroundColor: (isDark ? Colors.white : Colors.black).withOpacity(0.08),
+                        valueColor: AlwaysStoppedAnimation<Color>(primary),
+                      ),
+                    ),
+                  )
+                      .animate()
+                      .fadeIn(delay: 700.ms, duration: 300.ms),
+                ],
               ),
-            ],
+            ),
           ),
         ),
       ),
     );
   }
-
-  List<Widget> _buildBackgroundParticles(bool isDark) {
-    return List.generate(5, (index) {
-      final random = math.Random(index);
-      final size = 20.0 + (random.nextDouble() * 40);
-      final top = random.nextDouble() * 0.7;
-      final left = random.nextDouble();
-      
-      return Positioned(
-        top: MediaQuery.of(context).size.height * top,
-        left: MediaQuery.of(context).size.width * left,
-        child: Container(
-          width: size,
-          height: size,
-          decoration: BoxDecoration(
-            shape: BoxShape.circle,
-            color: isDark
-                ? const Color(0xFF6C63FF).withOpacity(0.05)
-                : const Color(0xFF6C63FF).withOpacity(0.03),
-          ),
-        ).animate(onPlay: (controller) => controller.repeat(reverse: true)).moveY(
-          begin: 0,
-          end: 30,
-          // Stagger durations a bit (ms), avoid huge second values that look like a bug
-          duration: Duration(milliseconds: 3000 + (index * 500)),
-        ),
-      );
-    });
-  }
-
-  Widget _buildOrbitalRings(bool isDark, double profileSize) {
-    return Stack(
-      alignment: Alignment.center,
-      children: [
-        // Outer ring
-        Container(
-          width: profileSize,
-          height: profileSize,
-          decoration: BoxDecoration(
-            shape: BoxShape.circle,
-            border: Border.all(
-              color: const Color(0xFF6C63FF).withOpacity(0.2),
-              width: 1,
-            ),
-          ),
-        ),
-        // Middle ring
-        Container(
-          width: profileSize * 0.75,
-          height: profileSize * 0.75,
-          decoration: BoxDecoration(
-            shape: BoxShape.circle,
-            border: Border.all(
-              color: const Color(0xFFFF6584).withOpacity(0.15),
-              width: 1,
-            ),
-          ),
-        ),
-        // Inner ring
-        Container(
-          width: profileSize * 0.5,
-          height: profileSize * 0.5,
-          decoration: BoxDecoration(
-            shape: BoxShape.circle,
-            border: Border.all(
-              color: const Color(0xFF00E5FF).withOpacity(0.1),
-              width: 1,
-            ),
-          ),
-        ),
-      ],
-    );
-  }
-
-  Widget _buildCustomLoadingIndicator(bool isDark, double size) {
-    return SizedBox(
-      width: size,
-      height: size,
-      child: Stack(
-        alignment: Alignment.center,
-        children: [
-          // Rotating outer ring
-          AnimatedBuilder(
-            animation: _orbitController,
-            builder: (context, _) {
-              return Transform.rotate(
-                angle: _orbitController.value * 2 * math.pi,
-                child: CustomPaint(
-                  painter: LoadingRingPainter(
-                    color: const Color(0xFF6C63FF),
-                  ),
-                  size: Size(size, size),
-                ),
-              );
-            },
-          ),
-          // Pulsing center
-          Container(
-            width: 12,
-            height: 12,
-            decoration: BoxDecoration(
-              shape: BoxShape.circle,
-              color: const Color(0xFFFF6584),
-              boxShadow: [
-                BoxShadow(
-                  color: const Color(0xFFFF6584).withOpacity(0.6),
-                  blurRadius: 8,
-                ),
-              ],
-            ),
-          ).animate(onPlay: (controller) => controller.repeat()).scale(
-            begin: const Offset(1, 1),
-            end: const Offset(1.5, 1.5),
-            duration: 1500.ms,
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-class LoadingRingPainter extends CustomPainter {
-  final Color color;
-
-  LoadingRingPainter({required this.color});
-
-  @override
-  void paint(Canvas canvas, Size size) {
-    final paint = Paint()
-      ..color = color
-      ..strokeWidth = 2
-      ..style = PaintingStyle.stroke
-      ..strokeCap = StrokeCap.round;
-
-    final center = Offset(size.width / 2, size.height / 2);
-    const radius = 25.0;
-    const arcAngle = 0.8; // Partial arc
-
-    canvas.drawArc(
-      Rect.fromCircle(center: center, radius: radius),
-      0,
-      arcAngle,
-      false,
-      paint,
-    );
-  }
-
-  @override
-  bool shouldRepaint(covariant CustomPainter oldDelegate) => true;
 }

@@ -5,13 +5,13 @@ import 'package:url_launcher/url_launcher.dart';
 import '../services/visitor_counter_service.dart';
 
 class ResumeScreen extends StatefulWidget {
-  final bool isDarkMode;
-  final VoidCallback onThemeChanged;
+  final bool? isDarkMode;
+  final VoidCallback? onThemeChanged;
 
   const ResumeScreen({
     super.key,
-    required this.isDarkMode,
-    required this.onThemeChanged,
+    this.isDarkMode,
+    this.onThemeChanged,
   });
 
   @override
@@ -48,11 +48,10 @@ class _ResumeScreenState extends State<ResumeScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final isDark = widget.isDarkMode;
+    final isDark = widget.isDarkMode ?? (Theme.of(context).brightness == Brightness.dark);
     final screenWidth = MediaQuery.of(context).size.width;
     final bool isMobile = screenWidth < 600;
     final bool isTablet = screenWidth >= 600 && screenWidth < 1200;
-    final bool isDesktop = screenWidth >= 1200;
 
     double bodyPadding, sectionSpacing, headingFontSize, textFontSize;
     if (isMobile) {
@@ -206,8 +205,8 @@ class _ResumeScreenState extends State<ResumeScreen> {
             ),
           ).animate().fadeIn(delay: 200.ms),
           const SizedBox(height: 8),
-          Text(
-            'Senior Mobile Application Developer',
+          const Text(
+            'Senior Lead Architect & Android Expert',
             textAlign: TextAlign.center,
             style: TextStyle(
               fontSize: 16,
@@ -216,12 +215,12 @@ class _ResumeScreenState extends State<ResumeScreen> {
             ),
           ).animate().fadeIn(delay: 400.ms),
           const SizedBox(height: 8),
-          Text(
-            'Kotlin | Flutter',
+          const Text(
+            'Kotlin • Flutter Impeller • KMP • AI Systems',
             textAlign: TextAlign.center,
             style: TextStyle(
-              fontSize: 14,
-              color: const Color(0xFF6C63FF),
+              fontSize: 13,
+              color: Color(0xFF38BDF8),
               fontWeight: FontWeight.w500,
             ),
           ).animate().fadeIn(delay: 500.ms),
