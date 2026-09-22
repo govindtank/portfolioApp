@@ -1,49 +1,53 @@
-# 🚀 Govind Tank — Architectural Portfolio v2
+# 🚀 Govind Tank — Architectural Portfolio & Showcase v2
 
-A high-performance, responsive portfolio application engineered in **Flutter** (Impeller / CanvasKit natively) demonstrating advanced system architecture, Enterprise Mobile expertise, Agentic AI, and Kotlin Multiplatform capabilities.
-
-## 🔗 Live Links
-* 🌐 **Main Website:** [govindtank.github.io](https://govindtank.github.io)
-* 📱 **Web App Experience:** [govindtank.github.io/portfolioApp/](https://govindtank.github.io/portfolioApp/)
-* 📄 **Professional Resume:** [govindtank.github.io/resume/](https://govindtank.github.io/resume/)
+A high-performance, mobile-first responsive portfolio application engineered with **Flutter** (Impeller / CanvasKit natively) demonstrating advanced system architecture, Enterprise Mobile engineering, Agentic AI toolchains, and Kotlin Multiplatform capabilities.
 
 ---
 
-## 📸 App Preview
+## 🔗 Authoritative Live Links
+* 🌐 **Main Engineering Website:** [govindtank.github.io](https://govindtank.github.io)
+* 📱 **Live Web App:** [govindtank.github.io/portfolioApp/](https://govindtank.github.io/portfolioApp/)
+* 📄 **Interactive Resume & CV:** [govindtank.github.io/resume/](https://govindtank.github.io/resume/)
+* 🐙 **GitHub Profile:** [github.com/govindtank](https://github.com/govindtank)
 
-The app boasts a fully fluid and responsive **Cyber-Architect Design System** featuring:
-- Seamless Dark and Light Mode transitions.
-- Interactive mesh ambient background gradients.
-- Glassmorphic UI constraints tailored for Mobile, Tablet, and Desktop.
-- Live dynamic tech blog integration.
+---
+
+## 📸 App Preview & Visual Vibe
+
+The application showcases a fluid, high-tech **Cyber-Architect Design System** optimized across mobile phones, tablets, and desktop viewports.
 
 ### Dark Mode (Obsidian Cyber)
-![Dark Mode Screenshot](assets/images/screenshot_dark.png)
+![Dark Mode Preview](assets/images/screenshot_dark.png)
 
 ### Light Mode (Aurora Glass)
-![Light Mode Screenshot](assets/images/screenshot_light.png)
+![Light Mode Preview](assets/images/screenshot_light.png)
 
 ---
 
-## ⚡ Next-Generation Features
+## ⚡ Key Highlights & Features
 
-### 1. Dual-Mode Design System & Theme Engine
-Instead of just a simple toggle, this app features a true multi-palette design language. The UI adapts dynamically with **Ambient Backgrounds** (animated glowing radial mesh gradients that pulse smoothly). Users can deeply customize the appearance via the stunning **Glassmorphic Appearance Settings Bottom Sheet** offering 5 distinct neon-accent cyber themes (`Cyber Sky`, `Neon Cyan`, `Electric Indigo`, `Matrix Emerald`, `Solar Amber`).
+### 1. 🎮 Interactive GitHub Contribution Snake Matrix
+A real-time contribution grid easter egg with an animated Cyber Snake that glides over contribution blocks.
+- **Autonomous Auto-Pilot:** Watch the snake crawl through real GitHub contribution heatmaps.
+- **Playable D-Pad Mode:** Take control and steer the snake to eat glowing commit blocks.
+- Highlights 2,480+ contributions and 142-day active streaks.
 
-### 2. Dynamic GitHub-Driven Architecture Blog
-Tech logs and articles are **not hardcoded**. The app integrates a powerful `BlogService` that uses the GitHub REST API to live-fetch Markdown (`.md`) articles directly from the [`govindtank.github.io`](https://govindtank.github.io) repository's `src/content/blog` directory.
-- Instant frontmatter parsing.
-- Dual-reading experience via embedded Markdown and high-performance WebViews.
-- Intelligent offline caching preventing unnecessary network calls.
+### 2. 📝 110+ Dynamic Blogs from `govindtank.github.io`
+Tech logs and deep dives are fetched live from the [`govindtank.github.io`](https://govindtank.github.io) repository:
+- Filter categories: **Flutter & Impeller**, **Agentic AI & MCP**, **Android & KMP**, **System Design**, and **Dev Tools**.
+- Dual reading modes: Native formatted Markdown with custom syntax-highlighted code blocks & direct web links.
+- Instant search by keyword, tag, or topic.
 
-### 3. Choreographed Performance Animations
-Utilizing `flutter_animate`, the UI feels incredibly tactile. 
-- The initial load is guarded by a cinematic, non-blocking splash sequence with breathtaking breathing halo rings.
-- Navigation yields staggered list entrance animations. 
-- Elements respond fluidly with 3D spring-elevation on touches and hovers ensuring absolute premium visual fidelity.
+### 3. 📄 Executive Resume Portal
+A dedicated, professional CV tab with:
+- 1-tap direct access to the live [Interactive Resume Portal](https://govindtank.github.io/resume/).
+- Verified visitor count metrics and executive architectural summary.
+- Comprehensive career progression timeline, technical toolchain competencies, and education background.
 
-### 4. Interactive Enterprise Showcase
-The **Projects Screen** filters live, high-scale engineering achievements demonstrating metrics like *99.95% crash-free stability*, *AWS CloudFront DRM*, and *100k+ global downloads*.
+### 4. 📱 Mobile-First Responsive Polish
+- All cards, metrics grids, toolchains, and badges use fluid responsive wrapping (`Wrap`, `FittedBox`, `Flexible`).
+- No text overlaps or border overflows on small screens (down to 320px width).
+- Ambient mesh backgrounds with floating Aurora orbs that adapt to your chosen neon accent theme.
 
 ---
 
@@ -53,11 +57,11 @@ The **Projects Screen** filters live, high-scale engineering achievements demons
 # Get dependencies
 flutter pub get
 
-# Run on macOS native or Chrome Web
+# Run with Flutter Web
 flutter run -d chrome
 
-# Build for Web Deployment (optimized with Impeller)
+# Build for GitHub Pages deployment
 flutter build web --release --base-href /portfolioApp/
 ```
 
-> **Author**: Govind Tank — Senior Lead Architect & Android Expert.
+> **Lead Architect**: [Govind Tank](https://govindtank.github.io) — Senior Lead Mobile Architect & Android Expert.

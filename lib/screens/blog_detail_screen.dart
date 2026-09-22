@@ -57,23 +57,25 @@ class _BlogDetailScreenState extends State<BlogDetailScreen> {
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final primary = Theme.of(context).colorScheme.primary;
+    final screenWidth = MediaQuery.of(context).size.width;
+    final bool isMobile = screenWidth < 700;
 
     return Scaffold(
       backgroundColor: isDark ? AppColors.darkBackground : AppColors.lightBackground,
       appBar: AppBar(
-        backgroundColor: isDark ? AppColors.darkSurface : AppColors.lightSurface,
+        backgroundColor: (isDark ? AppColors.darkSurface : AppColors.lightSurface).withOpacity(0.95),
         elevation: 0,
         title: Text(
           widget.post.category,
           style: GoogleFonts.spaceGrotesk(
-            fontSize: 16,
+            fontSize: 15,
             fontWeight: FontWeight.w600,
             color: primary,
           ),
         ),
         actions: [
           IconButton(
-            tooltip: 'Read on Website',
+            tooltip: 'Read on Website (govindtank.github.io)',
             icon: const Icon(Icons.open_in_browser_rounded),
             onPressed: _openInBrowser,
           ),
@@ -87,7 +89,7 @@ class _BlogDetailScreenState extends State<BlogDetailScreen> {
                   CircularProgressIndicator(color: primary),
                   const SizedBox(height: 16),
                   Text(
-                    'Loading architectural article...',
+                    'Loading article from govindtank.github.io...',
                     style: TextStyle(
                       color: isDark ? AppColors.darkTextMuted : AppColors.lightTextMuted,
                       fontSize: 13,
@@ -97,7 +99,10 @@ class _BlogDetailScreenState extends State<BlogDetailScreen> {
               ),
             )
           : SingleChildScrollView(
-              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 24),
+              padding: EdgeInsets.symmetric(
+                horizontal: isMobile ? 16 : 24,
+                vertical: 20,
+              ),
               child: Center(
                 child: ConstrainedBox(
                   constraints: const BoxConstraints(maxWidth: 820),
@@ -105,7 +110,11 @@ class _BlogDetailScreenState extends State<BlogDetailScreen> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       // Header Metadata
-                      Row(
+                      Wrap(
+                        alignment: WrapAlignment.spaceBetween,
+                        crossAxisAlignment: WrapCrossAlignment.center,
+                        spacing: 8,
+                        runSpacing: 6,
                         children: [
                           Container(
                             padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
@@ -118,42 +127,46 @@ class _BlogDetailScreenState extends State<BlogDetailScreen> {
                               widget.post.category,
                               style: TextStyle(
                                 color: primary,
-                                fontSize: 12,
+                                fontSize: 11,
                                 fontWeight: FontWeight.w600,
                               ),
                             ),
                           ),
-                          const SizedBox(width: 12),
-                          Icon(
-                            Icons.timer_outlined,
-                            size: 14,
-                            color: isDark ? AppColors.darkTextMuted : AppColors.lightTextMuted,
-                          ),
-                          const SizedBox(width: 4),
-                          Text(
-                            '${widget.post.readTime} min read',
-                            style: TextStyle(
-                              color: isDark ? AppColors.darkTextMuted : AppColors.lightTextMuted,
-                              fontSize: 12,
-                            ),
-                          ),
-                          const Spacer(),
-                          Text(
-                            widget.post.date,
-                            style: TextStyle(
-                              color: isDark ? AppColors.darkTextMuted : AppColors.lightTextMuted,
-                              fontSize: 12,
-                            ),
+                          Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Icon(
+                                Icons.timer_outlined,
+                                size: 13,
+                                color: isDark ? AppColors.darkTextMuted : AppColors.lightTextMuted,
+                              ),
+                              const SizedBox(width: 4),
+                              Text(
+                                '${widget.post.readTime} min read',
+                                style: TextStyle(
+                                  color: isDark ? AppColors.darkTextMuted : AppColors.lightTextMuted,
+                                  fontSize: 11,
+                                ),
+                              ),
+                              const SizedBox(width: 8),
+                              Text(
+                                widget.post.date,
+                                style: TextStyle(
+                                  color: isDark ? AppColors.darkTextMuted : AppColors.lightTextMuted,
+                                  fontSize: 11,
+                                ),
+                              ),
+                            ],
                           ),
                         ],
                       ),
-                      const SizedBox(height: 16),
+                      const SizedBox(height: 14),
 
                       // Title
                       Text(
                         widget.post.title,
                         style: GoogleFonts.spaceGrotesk(
-                          fontSize: 26,
+                          fontSize: isMobile ? 22 : 26,
                           fontWeight: FontWeight.w700,
                           color: isDark ? AppColors.darkTextPrimary : AppColors.lightTextPrimary,
                           height: 1.3,
@@ -198,9 +211,9 @@ class _BlogDetailScreenState extends State<BlogDetailScreen> {
                           ),
                         ],
                       ),
-                      const SizedBox(height: 24),
-                      const Divider(),
                       const SizedBox(height: 20),
+                      Divider(color: isDark ? AppColors.darkBorder : AppColors.lightBorder),
+                      const SizedBox(height: 16),
 
                       // Markdown Content
                       MarkdownBody(
@@ -208,33 +221,33 @@ class _BlogDetailScreenState extends State<BlogDetailScreen> {
                         selectable: true,
                         styleSheet: MarkdownStyleSheet(
                           p: GoogleFonts.inter(
-                            fontSize: 15,
+                            fontSize: 14,
                             height: 1.7,
                             color: isDark ? AppColors.darkTextSecondary : AppColors.lightTextSecondary,
                           ),
                           h1: GoogleFonts.spaceGrotesk(
-                            fontSize: 22,
+                            fontSize: isMobile ? 20 : 22,
                             fontWeight: FontWeight.w700,
                             color: isDark ? AppColors.darkTextPrimary : AppColors.lightTextPrimary,
                             height: 1.4,
                           ),
                           h2: GoogleFonts.spaceGrotesk(
-                            fontSize: 18,
+                            fontSize: isMobile ? 17 : 18,
                             fontWeight: FontWeight.w600,
                             color: primary,
                             height: 1.4,
                           ),
                           h3: GoogleFonts.spaceGrotesk(
-                            fontSize: 16,
+                            fontSize: 15,
                             fontWeight: FontWeight.w600,
                             color: isDark ? AppColors.darkTextPrimary : AppColors.lightTextPrimary,
                           ),
                           code: GoogleFonts.firaCode(
-                            fontSize: 13,
+                            fontSize: 12,
                             color: isDark ? AppColors.accentNeon : AppColors.primaryDark,
                             backgroundColor: isDark ? AppColors.darkSurfaceElevated : const Color(0xFFE2E8F0),
                           ),
-                          codeblockPadding: const EdgeInsets.all(16),
+                          codeblockPadding: const EdgeInsets.all(14),
                           codeblockDecoration: BoxDecoration(
                             color: isDark ? const Color(0xFF0F172A) : const Color(0xFFF1F5F9),
                             borderRadius: BorderRadius.circular(10),
@@ -243,7 +256,7 @@ class _BlogDetailScreenState extends State<BlogDetailScreen> {
                             ),
                           ),
                           blockquote: GoogleFonts.inter(
-                            fontSize: 14,
+                            fontSize: 13,
                             fontStyle: FontStyle.italic,
                             color: isDark ? AppColors.darkTextMuted : AppColors.lightTextMuted,
                           ),
@@ -256,53 +269,49 @@ class _BlogDetailScreenState extends State<BlogDetailScreen> {
                           listBullet: TextStyle(color: primary),
                         ),
                       ),
-                      const SizedBox(height: 40),
+                      const SizedBox(height: 32),
 
                       // Footer Card
                       Container(
-                        padding: const EdgeInsets.all(20),
+                        padding: const EdgeInsets.all(18),
                         decoration: BoxDecoration(
                           color: isDark ? AppColors.darkSurface : AppColors.lightSurface,
-                          borderRadius: BorderRadius.circular(12),
+                          borderRadius: BorderRadius.circular(14),
                           border: Border.all(
                             color: isDark ? AppColors.darkBorder : AppColors.lightBorder,
                           ),
                         ),
-                        child: Row(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            Icon(Icons.article_rounded, color: primary, size: 28),
-                            const SizedBox(width: 14),
-                            Expanded(
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Text(
-                                    'Read more architectural logs',
-                                    style: TextStyle(
-                                      fontWeight: FontWeight.w600,
-                                      fontSize: 14,
-                                      color: isDark ? AppColors.darkTextPrimary : AppColors.lightTextPrimary,
-                                    ),
-                                  ),
-                                  Text(
-                                    'Explore 100+ articles at govindtank.github.io',
-                                    style: TextStyle(
-                                      fontSize: 12,
-                                      color: isDark ? AppColors.darkTextMuted : AppColors.lightTextMuted,
-                                    ),
-                                  ),
-                                ],
+                            Text(
+                              'Enjoyed this deep dive?',
+                              style: GoogleFonts.spaceGrotesk(
+                                fontSize: 16,
+                                fontWeight: FontWeight.w700,
+                                color: isDark ? AppColors.darkTextPrimary : AppColors.lightTextPrimary,
                               ),
                             ),
-                            OutlinedButton.icon(
-                              icon: const Icon(Icons.launch, size: 14),
-                              label: const Text('Visit Web'),
-                              style: OutlinedButton.styleFrom(
-                                foregroundColor: primary,
-                                side: BorderSide(color: primary),
-                                padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+                            const SizedBox(height: 4),
+                            Text(
+                              'Explore all 110+ technical publications on system architecture, KMP, and on-device AI.',
+                              style: TextStyle(
+                                fontSize: 12,
+                                color: isDark ? AppColors.darkTextMuted : AppColors.lightTextMuted,
                               ),
+                            ),
+                            const SizedBox(height: 12),
+                            ElevatedButton.icon(
                               onPressed: _openInBrowser,
+                              icon: const Icon(Icons.open_in_browser_rounded, size: 14),
+                              label: const Text('Read on Web (govindtank.github.io)'),
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: primary,
+                                foregroundColor: Colors.black,
+                                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+                                textStyle: const TextStyle(fontWeight: FontWeight.w700, fontSize: 12),
+                                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                              ),
                             ),
                           ],
                         ),

@@ -35,6 +35,8 @@ class _ProjectsScreenState extends State<ProjectsScreen> {
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final primary = Theme.of(context).colorScheme.primary;
+    final screenWidth = MediaQuery.of(context).size.width;
+    final bool isMobile = screenWidth < 700;
 
     final filteredProjects = portfolioData.projects.where((p) {
       if (_selectedFilter == 'All') return true;
@@ -56,7 +58,10 @@ class _ProjectsScreenState extends State<ProjectsScreen> {
     return Scaffold(
       backgroundColor: Colors.transparent,
       body: SingleChildScrollView(
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 20),
+        padding: EdgeInsets.symmetric(
+          horizontal: isMobile ? 16 : 28,
+          vertical: 20,
+        ),
         child: Center(
           child: ConstrainedBox(
             constraints: const BoxConstraints(maxWidth: 1000),
@@ -75,25 +80,29 @@ class _ProjectsScreenState extends State<ProjectsScreen> {
                       child: Icon(Icons.rocket_launch_rounded, color: primary, size: 22),
                     ),
                     const SizedBox(width: 12),
-                    Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          'Featured Engineering Projects',
-                          style: GoogleFonts.spaceGrotesk(
-                            fontSize: 22,
-                            fontWeight: FontWeight.w700,
-                            color: isDark ? AppColors.darkTextPrimary : AppColors.lightTextPrimary,
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            'Featured Engineering Projects',
+                            style: GoogleFonts.spaceGrotesk(
+                              fontSize: isMobile ? 20 : 24,
+                              fontWeight: FontWeight.w700,
+                              color: isDark ? AppColors.darkTextPrimary : AppColors.lightTextPrimary,
+                            ),
                           ),
-                        ),
-                        Text(
-                          'Flagship systems built for scale, DRM security & high concurrency',
-                          style: TextStyle(
-                            fontSize: 13,
-                            color: isDark ? AppColors.darkTextMuted : AppColors.lightTextMuted,
+                          Text(
+                            'Flagship systems built for scale, DRM security & high concurrency',
+                            style: TextStyle(
+                              fontSize: 12,
+                              color: isDark ? AppColors.darkTextMuted : AppColors.lightTextMuted,
+                            ),
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
                           ),
-                        ),
-                      ],
+                        ],
+                      ),
                     ),
                   ],
                 ).animate().fadeIn(duration: 400.ms).slideX(begin: -0.05),
@@ -118,9 +127,8 @@ class _ProjectsScreenState extends State<ProjectsScreen> {
                           selectedColor: primary.withOpacity(0.2),
                           checkmarkColor: primary,
                           side: BorderSide(
-                            color: isSelected
-                                ? primary
-                                : (isDark ? AppColors.darkBorder : AppColors.lightBorder),
+                            color: isSelected ? primary : (isDark ? AppColors.darkBorderLight : AppColors.lightBorder),
+                            width: isSelected ? 1.5 : 1,
                           ),
                           labelStyle: TextStyle(
                             color: isSelected
@@ -129,73 +137,50 @@ class _ProjectsScreenState extends State<ProjectsScreen> {
                             fontWeight: isSelected ? FontWeight.w600 : FontWeight.w500,
                             fontSize: 12,
                           ),
-                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(8),
+                          ),
                         ),
                       );
                     }).toList(),
                   ),
                 ).animate().fadeIn(delay: 100.ms, duration: 400.ms),
 
+                const SizedBox(height: 20),
+
+                // Project Cards List
+                ...filteredProjects.asMap().entries.map((entry) {
+                  return _buildProjectCard(context, entry.value, entry.key, isMobile);
+                }),
+
                 const SizedBox(height: 24),
 
-                // Commercial Project Cards
-                ListView.builder(
-                  shrinkWrap: true,
-                  physics: const NeverScrollableScrollPhysics(),
-                  itemCount: filteredProjects.length,
-                  itemBuilder: (context, index) {
-                    final project = filteredProjects[index];
-                    return _buildProjectCard(context, project, index);
-                  },
-                ),
-
-                const SizedBox(height: 32),
-
-                // Open Source / Live GitHub Repos Section
+                // GitHub Repositories Section Header
                 Row(
                   children: [
-                    Container(
-                      padding: const EdgeInsets.all(8),
-                      decoration: BoxDecoration(
-                        color: AppColors.secondary.withOpacity(0.15),
-                        borderRadius: BorderRadius.circular(10),
+                    Icon(Icons.code_rounded, color: primary, size: 20),
+                    const SizedBox(width: 8),
+                    Text(
+                      'Live Open-Source & GitHub Repositories',
+                      style: GoogleFonts.spaceGrotesk(
+                        fontSize: isMobile ? 16 : 18,
+                        fontWeight: FontWeight.w700,
+                        color: isDark ? AppColors.darkTextPrimary : AppColors.lightTextPrimary,
                       ),
-                      child: const Icon(Icons.code_rounded, color: AppColors.secondary, size: 22),
-                    ),
-                    const SizedBox(width: 12),
-                    Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          'Open Source & GitHub Repositories',
-                          style: GoogleFonts.spaceGrotesk(
-                            fontSize: 20,
-                            fontWeight: FontWeight.w700,
-                            color: isDark ? AppColors.darkTextPrimary : AppColors.lightTextPrimary,
-                          ),
-                        ),
-                        Text(
-                          'Real-time public repositories from github.com/govindtank',
-                          style: TextStyle(
-                            fontSize: 13,
-                            color: isDark ? AppColors.darkTextMuted : AppColors.lightTextMuted,
-                          ),
-                        ),
-                      ],
                     ),
                   ],
-                ),
+                ).animate().fadeIn(delay: 200.ms, duration: 400.ms),
 
-                const SizedBox(height: 16),
+                const SizedBox(height: 14),
 
-                // GitHub Repos FutureBuilder
+                // Live GitHub Projects FutureBuilder
                 FutureBuilder<List<GithubProject>>(
                   future: _githubService.fetchTopProjects(),
                   builder: (context, snapshot) {
                     if (snapshot.connectionState == ConnectionState.waiting) {
                       return Center(
                         child: Padding(
-                          padding: const EdgeInsets.all(30),
+                          padding: const EdgeInsets.all(24.0),
                           child: CircularProgressIndicator(color: primary),
                         ),
                       );
@@ -225,7 +210,7 @@ class _ProjectsScreenState extends State<ProjectsScreen> {
                         itemCount: projects.length,
                         itemBuilder: (context, index) {
                           final p = projects[index];
-                          return _buildGithubCard(context, p, index);
+                          return _buildGithubCard(context, p, index, isMobile);
                         },
                       );
                     }
@@ -241,7 +226,7 @@ class _ProjectsScreenState extends State<ProjectsScreen> {
     );
   }
 
-  Widget _buildProjectCard(BuildContext context, Project project, int index) {
+  Widget _buildProjectCard(BuildContext context, Project project, int index, bool isMobile) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final primary = Theme.of(context).colorScheme.primary;
 
@@ -263,95 +248,166 @@ class _ProjectsScreenState extends State<ProjectsScreen> {
         ],
       ),
       child: Padding(
-        padding: const EdgeInsets.all(20),
+        padding: EdgeInsets.all(isMobile ? 16 : 22),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             // Top Row
-            Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Container(
-                  width: 44,
-                  height: 44,
-                  decoration: BoxDecoration(
-                    gradient: LinearGradient(
-                      colors: [primary.withOpacity(0.2), AppColors.secondary.withOpacity(0.15)],
-                      begin: Alignment.topLeft,
-                      end: Alignment.bottomRight,
+            if (!isMobile)
+              Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Container(
+                    width: 44,
+                    height: 44,
+                    decoration: BoxDecoration(
+                      gradient: LinearGradient(
+                        colors: [primary.withOpacity(0.2), AppColors.secondary.withOpacity(0.15)],
+                        begin: Alignment.topLeft,
+                        end: Alignment.bottomRight,
+                      ),
+                      borderRadius: BorderRadius.circular(12),
+                      border: Border.all(color: primary.withOpacity(0.3)),
                     ),
-                    borderRadius: BorderRadius.circular(12),
-                    border: Border.all(color: primary.withOpacity(0.3)),
+                    child: Icon(
+                      project.link != null && project.link!.contains('play.google.com')
+                          ? Icons.play_arrow_rounded
+                          : Icons.layers_rounded,
+                      color: primary,
+                      size: 24,
+                    ),
                   ),
-                  child: Icon(
-                    project.link != null && project.link!.contains('play.google.com')
-                        ? Icons.play_arrow_rounded
-                        : Icons.layers_rounded,
-                    color: primary,
-                    size: 24,
+                  const SizedBox(width: 14),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          project.name,
+                          style: GoogleFonts.spaceGrotesk(
+                            fontSize: 18,
+                            fontWeight: FontWeight.w700,
+                            color: isDark ? AppColors.darkTextPrimary : AppColors.lightTextPrimary,
+                          ),
+                        ),
+                        const SizedBox(height: 2),
+                        Text(
+                          'Production Mobile Architecture',
+                          style: TextStyle(
+                            fontSize: 12,
+                            color: primary,
+                            fontWeight: FontWeight.w500,
+                          ),
+                        ),
+                      ],
+                    ),
                   ),
-                ),
-                const SizedBox(width: 14),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
+                  if (project.link != null)
+                    ElevatedButton.icon(
+                      onPressed: () => _launchUrl(project.link),
+                      icon: const Icon(Icons.open_in_new, size: 14),
+                      label: const Text('View App'),
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: primary,
+                        foregroundColor: Colors.black,
+                        elevation: 0,
+                        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+                        textStyle: const TextStyle(fontSize: 12, fontWeight: FontWeight.w600),
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                      ),
+                    ),
+                ],
+              )
+            else
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
                     children: [
-                      Text(
-                        project.name,
-                        style: GoogleFonts.spaceGrotesk(
-                          fontSize: 18,
-                          fontWeight: FontWeight.w700,
-                          color: isDark ? AppColors.darkTextPrimary : AppColors.lightTextPrimary,
+                      Container(
+                        width: 38,
+                        height: 38,
+                        decoration: BoxDecoration(
+                          gradient: LinearGradient(
+                            colors: [primary.withOpacity(0.2), AppColors.secondary.withOpacity(0.15)],
+                            begin: Alignment.topLeft,
+                            end: Alignment.bottomRight,
+                          ),
+                          borderRadius: BorderRadius.circular(10),
+                          border: Border.all(color: primary.withOpacity(0.3)),
+                        ),
+                        child: Icon(
+                          project.link != null && project.link!.contains('play.google.com')
+                              ? Icons.play_arrow_rounded
+                              : Icons.layers_rounded,
+                          color: primary,
+                          size: 20,
                         ),
                       ),
-                      const SizedBox(height: 2),
-                      Text(
-                        'Production Mobile Architecture',
-                        style: TextStyle(
-                          fontSize: 12,
-                          color: primary,
-                          fontWeight: FontWeight.w500,
+                      const SizedBox(width: 12),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              project.name,
+                              style: GoogleFonts.spaceGrotesk(
+                                fontSize: 16,
+                                fontWeight: FontWeight.w700,
+                                color: isDark ? AppColors.darkTextPrimary : AppColors.lightTextPrimary,
+                              ),
+                            ),
+                            Text(
+                              'Production Architecture',
+                              style: TextStyle(
+                                fontSize: 11,
+                                color: primary,
+                                fontWeight: FontWeight.w500,
+                              ),
+                            ),
+                          ],
                         ),
                       ),
                     ],
                   ),
-                ),
-                if (project.link != null)
-                  ElevatedButton.icon(
-                    onPressed: () => _launchUrl(project.link),
-                    icon: const Icon(Icons.open_in_new, size: 14),
-                    label: const Text('View App'),
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: primary,
-                      foregroundColor: Colors.black,
-                      elevation: 0,
-                      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
-                      textStyle: const TextStyle(fontSize: 12, fontWeight: FontWeight.w600),
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                  if (project.link != null) ...[
+                    const SizedBox(height: 10),
+                    ElevatedButton.icon(
+                      onPressed: () => _launchUrl(project.link),
+                      icon: const Icon(Icons.open_in_new, size: 13),
+                      label: const Text('View on Google Play'),
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: primary,
+                        foregroundColor: Colors.black,
+                        elevation: 0,
+                        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                        textStyle: const TextStyle(fontSize: 11, fontWeight: FontWeight.w700),
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(6)),
+                      ),
                     ),
-                  ),
-              ],
-            ),
-            const SizedBox(height: 16),
+                  ],
+                ],
+              ),
+            const SizedBox(height: 14),
 
             // Description
             Text(
               project.description,
               style: TextStyle(
-                fontSize: 14,
-                height: 1.6,
+                fontSize: isMobile ? 13 : 14,
+                height: 1.55,
                 color: isDark ? AppColors.darkTextSecondary : AppColors.lightTextSecondary,
               ),
             ),
-            const SizedBox(height: 16),
+            const SizedBox(height: 14),
 
             // Tech stack tags
             Wrap(
-              spacing: 8,
-              runSpacing: 8,
+              spacing: 6,
+              runSpacing: 6,
               children: project.technologies.map((tech) {
                 return Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                  padding: const EdgeInsets.symmetric(horizontal: 9, vertical: 4),
                   decoration: BoxDecoration(
                     color: isDark ? AppColors.darkSurfaceElevated : AppColors.lightSurfaceElevated,
                     borderRadius: BorderRadius.circular(6),
@@ -379,7 +435,7 @@ class _ProjectsScreenState extends State<ProjectsScreen> {
         .slideY(begin: 0.05, delay: Duration(milliseconds: 60 * index), duration: 400.ms);
   }
 
-  Widget _buildGithubCard(BuildContext context, GithubProject project, int index) {
+  Widget _buildGithubCard(BuildContext context, GithubProject project, int index, bool isMobile) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final primary = Theme.of(context).colorScheme.primary;
 
@@ -399,19 +455,19 @@ class _ProjectsScreenState extends State<ProjectsScreen> {
           borderRadius: BorderRadius.circular(12),
           onTap: () => _launchUrl(project.htmlUrl),
           child: Padding(
-            padding: const EdgeInsets.all(16),
+            padding: EdgeInsets.all(isMobile ? 12 : 16),
             child: Row(
               children: [
                 Container(
-                  width: 36,
-                  height: 36,
+                  width: 32,
+                  height: 32,
                   decoration: BoxDecoration(
                     color: AppColors.secondary.withOpacity(0.12),
                     borderRadius: BorderRadius.circular(8),
                   ),
-                  child: const Icon(Icons.code, color: AppColors.secondary, size: 18),
+                  child: const Icon(Icons.code, color: AppColors.secondary, size: 16),
                 ),
-                const SizedBox(width: 14),
+                const SizedBox(width: 12),
                 Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
@@ -419,7 +475,7 @@ class _ProjectsScreenState extends State<ProjectsScreen> {
                       Text(
                         project.name,
                         style: GoogleFonts.spaceGrotesk(
-                          fontSize: 15,
+                          fontSize: isMobile ? 14 : 15,
                           fontWeight: FontWeight.w600,
                           color: primary,
                         ),
@@ -431,7 +487,7 @@ class _ProjectsScreenState extends State<ProjectsScreen> {
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
                           style: TextStyle(
-                            fontSize: 12,
+                            fontSize: 11,
                             color: isDark ? AppColors.darkTextMuted : AppColors.lightTextMuted,
                           ),
                         ),
@@ -439,9 +495,10 @@ class _ProjectsScreenState extends State<ProjectsScreen> {
                     ],
                   ),
                 ),
-                if (project.language.isNotEmpty && project.language != 'Unknown')
+                const SizedBox(width: 8),
+                if (!isMobile && project.language.isNotEmpty && project.language != 'Unknown')
                   Container(
-                    margin: const EdgeInsets.only(right: 12),
+                    margin: const EdgeInsets.only(right: 8),
                     padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
                     decoration: BoxDecoration(
                       color: primary.withOpacity(0.12),
@@ -458,7 +515,7 @@ class _ProjectsScreenState extends State<ProjectsScreen> {
                   ),
                 Icon(
                   Icons.open_in_new,
-                  size: 16,
+                  size: 15,
                   color: isDark ? AppColors.darkTextMuted : AppColors.lightTextMuted,
                 ),
               ],
@@ -466,9 +523,6 @@ class _ProjectsScreenState extends State<ProjectsScreen> {
           ),
         ),
       ),
-    )
-        .animate()
-        .fadeIn(delay: Duration(milliseconds: 40 * index), duration: 350.ms)
-        .slideX(begin: 0.05, delay: Duration(milliseconds: 40 * index), duration: 350.ms);
+    );
   }
 }

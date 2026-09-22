@@ -31,54 +31,50 @@ class BlogService {
       final response = await http.get(
         url,
         headers: {'Accept': 'application/vnd.github.v3+json'},
-      ).timeout(const Duration(seconds: 8));
+      ).timeout(const Duration(seconds: 10));
 
       if (response.statusCode == 200) {
         final List<dynamic> files = json.decode(response.body);
         final List<BlogPost> dynamicPosts = [];
 
-        // Take the top 15 most relevant articles
         final mdFiles = files
             .where((f) => f['name'] != null && f['name'].toString().endsWith('.md'))
-            .take(15)
             .toList();
 
         for (final file in mdFiles) {
           final fileName = file['name'] as String;
           final slug = fileName.replaceAll('.md', '');
           
-          // Match with featured first or construct item
           final featuredMatch = _featuredArticles.where((p) => p.slug == slug).firstOrNull;
           if (featuredMatch != null) {
             dynamicPosts.add(featuredMatch);
           } else {
-            // Generate clean human title from slug
-            final title = slug
-                .split('-')
-                .map((w) => w.isNotEmpty ? '${w[0].toUpperCase()}${w.substring(1)}' : '')
-                .join(' ');
-
+            // Intelligent Category Discovery from Slug
             String category = 'Architecture';
-            if (slug.contains('flutter')) {
-              category = 'Flutter';
-            } else if (slug.contains('android') || slug.contains('compose')) {
-              category = 'Android';
-            } else if (slug.contains('ai') || slug.contains('agent') || slug.contains('llm')) {
-              category = 'AI Systems';
-            } else if (slug.contains('kotlin') || slug.contains('kmp')) {
-              category = 'Kotlin';
+            if (slug.contains('flutter') || slug.contains('impeller') || slug.contains('dart') || slug.contains('webgpu')) {
+              category = 'Flutter & Impeller';
+            } else if (slug.contains('ai') || slug.contains('agent') || slug.contains('mcp') || slug.contains('llm') || slug.contains('slm') || slug.contains('rag') || slug.contains('claude')) {
+              category = 'Agentic AI & MCP';
+            } else if (slug.contains('android') || slug.contains('compose') || slug.contains('kotlin') || slug.contains('kmp') || slug.contains('npu') || slug.contains('opengl')) {
+              category = 'Android & KMP';
+            } else if (slug.contains('tool') || slug.contains('rust') || slug.contains('docker') || slug.contains('wasm') || slug.contains('typescript') || slug.contains('idea')) {
+              category = 'Dev Tools';
+            } else {
+              category = 'System Design';
             }
+
+            final title = _formatTitleFromSlug(slug);
 
             dynamicPosts.add(
               BlogPost(
                 title: title,
                 slug: slug,
                 date: '2026',
-                excerpt: 'In-depth engineering breakdown of $title by Govind Tank.',
+                excerpt: 'Architectural analysis and implementation guide on $title by Senior Lead Mobile Architect Govind Tank.',
                 coverImage: _getCoverImageForCategory(category),
                 category: category,
                 readTime: 6,
-                tags: [category, 'Mobile', 'Architecture'],
+                tags: [category, 'Architecture', 'Enterprise'],
               ),
             );
           }
@@ -99,8 +95,26 @@ class BlogService {
     return _featuredArticles;
   }
 
+  static String _formatTitleFromSlug(String slug) {
+    return slug
+        .split('-')
+        .map((w) {
+          if (w.isEmpty) return '';
+          if (w.toLowerCase() == 'ai') return 'AI';
+          if (w.toLowerCase() == 'mcp') return 'MCP';
+          if (w.toLowerCase() == 'kmp') return 'KMP';
+          if (w.toLowerCase() == 'npu') return 'NPU';
+          if (w.toLowerCase() == 'llm') return 'LLM';
+          if (w.toLowerCase() == 'slm') return 'SLM';
+          if (w.toLowerCase() == 'ui') return 'UI';
+          if (w.toLowerCase() == 'crdt') return 'CRDT';
+          if (w.toLowerCase() == 'cqrs') return 'CQRS';
+          return '${w[0].toUpperCase()}${w.substring(1)}';
+        })
+        .join(' ');
+  }
+
   Future<String> fetchPostMarkdown(String slug) async {
-    // Check if we have pre-cached full content
     final match = _featuredArticles.where((p) => p.slug == slug && p.content != null).firstOrNull;
     if (match != null && match.content != null && match.content!.isNotEmpty) {
       return match.content!;
@@ -110,7 +124,7 @@ class BlogService {
       final url = Uri.parse(
         'https://raw.githubusercontent.com/govindtank/govindtank.github.io/main/src/content/blog/$slug.md',
       );
-      final response = await http.get(url).timeout(const Duration(seconds: 8));
+      final response = await http.get(url).timeout(const Duration(seconds: 10));
       if (response.statusCode == 200) {
         final raw = response.body;
         if (raw.startsWith('---')) {
@@ -122,159 +136,114 @@ class BlogService {
         return raw;
       }
     } catch (e) {
-      debugPrint('Error fetching raw post markdown: $e');
+      debugPrint('Error fetching post markdown: $e');
     }
 
-    return '# Article Overview\n\nThis article is available online at [https://govindtank.github.io/blog/$slug](https://govindtank.github.io/blog/$slug).\n\n### Highlights\n- In-depth architectural patterns\n- Production benchmarks and case studies\n- Mobile engineering insights by Govind Tank';
+    return '# $slug\n\nArticle preview loaded directly from [govindtank.github.io](https://govindtank.github.io/blog/$slug). Read the full article on the web.';
   }
 
-  String _getCoverImageForCategory(String category) {
+  static String _getCoverImageForCategory(String category) {
     switch (category) {
-      case 'Flutter':
-        return 'https://images.unsplash.com/photo-1551288049-bebda4e38f71?auto=format&fit=crop&q=80&w=1200';
-      case 'Android':
-        return 'https://images.unsplash.com/photo-1607252650355-f7fd0460ccdb?auto=format&fit=crop&q=80&w=1200';
-      case 'AI Systems':
+      case 'Flutter & Impeller':
+        return 'https://images.unsplash.com/photo-1551650975-87deedd944c3?auto=format&fit=crop&q=80&w=1200';
+      case 'Agentic AI & MCP':
         return 'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?auto=format&fit=crop&q=80&w=1200';
-      case 'Kotlin':
-        return 'https://images.unsplash.com/photo-1555066931-4365d14bab8c?auto=format&fit=crop&q=80&w=1200';
+      case 'Android & KMP':
+        return 'https://images.unsplash.com/photo-1607252650355-f7fd0460ccdb?auto=format&fit=crop&q=80&w=1200';
+      case 'Dev Tools':
+        return 'https://images.unsplash.com/photo-1526374965328-7f61d4dc18c5?auto=format&fit=crop&q=80&w=1200';
       default:
-        return 'https://images.unsplash.com/photo-1522252234503-e356532cafd5?auto=format&fit=crop&q=80&w=1200';
+        return 'https://images.unsplash.com/photo-1451187580459-43490279c0fa?auto=format&fit=crop&q=80&w=1200';
     }
   }
 
   static final List<BlogPost> _featuredArticles = [
     BlogPost(
-      title: 'Flutter 4 and Impeller: The Next Generation of Cross-Platform UI Performance',
+      title: 'Flutter 4 and Impeller: The Next Generation of UI Performance',
       slug: 'flutter-4-and-impeller-the-next-generation-of-cross-platform-ui-performance',
-      date: 'August 03, 2026',
-      excerpt:
-          'Deep dive into Flutter 4 with Impeller GPU renderer, custom fragment shaders, and eliminating runtime shader compilation jank forever.',
-      coverImage: 'https://images.unsplash.com/photo-1522252234503-e356532cafd5?auto=format&fit=crop&q=80&w=1200',
-      category: 'Flutter',
+      date: 'Aug 03, 2026',
+      excerpt: 'In Flutter 4, the Skia path is deprecated. Every frame renders through Impeller with zero runtime shader compilation jank.',
+      coverImage: 'https://images.unsplash.com/photo-1551650975-87deedd944c3?auto=format&fit=crop&q=80&w=1200',
+      category: 'Flutter & Impeller',
       readTime: 6,
-      tags: ['Flutter', 'Impeller', 'Performance', 'GPU'],
-      content: '''
-# Flutter 4 and Impeller: Next-Gen Cross-Platform UI Performance
+      tags: ['Flutter', 'Impeller', 'Graphics', 'Performance'],
+      content: '''# Flutter 4 and Impeller: The Next Generation of UI Performance
 
-I've shipped Flutter apps since the 1.0 days. For most of that time I kept a rehearsed answer for the same complaint: "the app stutters on the first scroll." Launch, swipe, and the raster thread froze for a beat while the engine compiled shaders on the fly. A few hundred milliseconds later everything ran smooth, but the first impression was already ruined.
+I've shipped Flutter apps since the 1.0 days. For most of that time I kept a rehearsed answer for the same complaint: *"the app stutters on the first scroll."* 
 
-Flutter 4 removes that excuse. On iOS and Android, the Skia path is gone. Every frame renders through Impeller, Flutter's own GPU renderer, and nothing gets compiled at runtime. No warm-up pass. No hitch.
+Flutter 4 completely transforms cross-platform rendering. On iOS and Android, every frame renders through **Impeller**, Flutter's purpose-built GPU renderer. Nothing gets compiled at runtime.
 
-## The Jank Problem Impeller Solves
-
-The old renderer received draw commands, turned them into GPU work, and hit a wall the moment it met an unfamiliar effect. Shadows, rounded corners, gradients — each one needed a shader, and Skia compiled shaders lazily on the raster thread.
-
-Impeller compiles all shaders ahead of time during the engine build phase. It embraces modern graphic backends:
-- **Metal** on iOS and macOS
-- **Vulkan** on Android (with robust OpenGLES fallbacks)
-- Pre-compiled SPIR-V pipeline state objects
-
-## Real Architectural Benefits
-
-1. **Deterministic 120 FPS**: Zero runtime shader compilation pauses.
-2. **First-Class Fragment Shaders**: Custom GLSL shaders run at raw hardware speeds.
-3. **Optimized Memory Footprint**: Textures and surfaces recycled with zero memory churn.
-
-```dart
-// Custom Impeller-ready shader snippet
-final program = await FragmentProgram.fromAsset('shaders/cyber_glow.frag');
-final shader = program.fragmentShader();
-shader.setFloat(0, size.width);
-shader.setFloat(1, size.height);
-canvas.drawRect(rect, Paint()..shader = shader);
-```
-
-By transitioning enterprise apps like *BAPS Prakash* and *Akshar Amrutam* to modern architectures, we achieve consistent 99.95% crash-free stability across millions of user sessions.
+### Key Architectural Shifts:
+1. **Ahead-of-Time Shader Compilation:** Shaders are pre-compiled into target GPU formats (MSL for iOS, SPIR-V/Vulkan for Android).
+2. **Explicit Concurrency Model:** Multi-threaded command submission decouples UI layout from GPU buffer submission.
+3. **Hardware Tessellation:** Geometry curves and shadows are rasterized with hardware-level acceleration.
 ''',
     ),
     BlogPost(
-      title: 'Agentic AI Workflows: Architecting Multi-Agent Systems with MCP in 2026',
-      slug: 'agentic-ai-building-autonomous-workflows-with-langgraph-and-mcp-protocol',
-      date: 'August 12, 2026',
-      excerpt:
-          'How Model Context Protocol (MCP) and agentic tool loops are reshaping mobile and backend software engineering workflows.',
+      title: 'Building Production-Grade Model Context Protocol (MCP) Clients in KMP',
+      slug: 'building-production-grade-model-context-protocol-mcp-clients-in-kotlin-multiplatform',
+      date: 'Aug 01, 2026',
+      excerpt: 'Architecting cross-platform autonomous agents connecting LLMs to native mobile sensors and file systems with Model Context Protocol.',
       coverImage: 'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?auto=format&fit=crop&q=80&w=1200',
-      category: 'AI Systems',
+      category: 'Agentic AI & MCP',
       readTime: 8,
-      tags: ['AI Agents', 'MCP', 'Architecture', 'Tool Loops'],
-      content: '''
-# Agentic AI Workflows: Architecting Multi-Agent Systems in 2026
+      tags: ['MCP', 'AI Agents', 'Kotlin Multiplatform', 'Architecture'],
+      content: '''# Building Production-Grade MCP Clients in Kotlin Multiplatform
 
-The shift from simple conversational chatbots to autonomous coding and diagnostic agents is the most significant leap in software engineering this decade.
+Model Context Protocol (MCP) has emerged as the universal standard for AI tool execution. By building MCP clients in Kotlin Multiplatform (KMP), we bridge LLMs directly to Android and iOS platform capabilities.
 
-## The Core Foundations of Agentic Loops
-
-An autonomous agent differs fundamentally from a single-prompt LLM:
-1. **Perception**: Reading workspace context, inspecting file trees, and gathering live metrics.
-2. **Action Plan**: Formulating verified hypothesis steps with fail-safes.
-3. **Execution**: Running targeted tools (terminal, file patchers, AST analyzers).
-4. **Verification**: Validating test outputs and real world artifacts before declaring completion.
-
-## The Role of Model Context Protocol (MCP)
-
-Model Context Protocol standardizes how LLMs interface with databases, codebases, and physical OS tools without bespoke APIs:
-- Isolated security contexts
-- Bi-directional telemetry
-- Zero-drift schema enforcement
-
-By integrating agentic automation into CI/CD pipelines, we reduce release cycle overhead by over 70% while improving test coverage.
+```kotlin
+class MobileMcpClient(private val transport: McpTransport) {
+    suspend fun executeTool(name: String, params: JsonObject): ToolResult {
+        return transport.sendRequest("tools/call", json {
+            "name" to name
+            "arguments" to params
+        })
+    }
+}
+```
 ''',
     ),
     BlogPost(
-      title: 'Kotlin Multiplatform at Scale: Production Architecture for Shared Logic',
-      slug: 'kotlin-multiplatform-in-production-sharing-business-logic-across-android-ios-and-web-in-2026',
-      date: 'July 28, 2026',
-      excerpt:
-          'Lessons from sharing Clean Architecture domain and data layers across Android, iOS, and Web with Kotlin Multiplatform and Compose.',
-      coverImage: 'https://images.unsplash.com/photo-1555066931-4365d14bab8c?auto=format&fit=crop&q=80&w=1200',
-      category: 'Kotlin',
-      readTime: 7,
-      tags: ['KMP', 'Kotlin', 'Clean Architecture', 'Compose'],
-      content: '''
-# Kotlin Multiplatform at Scale: Production Architecture
-
-Kotlin Multiplatform (KMP) has matured into the premier solution for teams wanting shared native performance without the compromises of monolithic web wrappers.
-
-## Layer Separation Strategy
-
-```
-┌─────────────────────────────────────────┐
-│        UI Layer (Jetpack Compose / SwiftUI) │
-├─────────────────────────────────────────┤
-│        Shared Domain (UseCases, Entities)│
-├─────────────────────────────────────────┤
-│        Shared Data (Ktor, SQLDelight, KV)│
-└─────────────────────────────────────────┘
-```
-
-- **Zero UI Lock-in**: Share 80% of business logic while maintaining pixel-perfect native platform aesthetics.
-- **Strict Memory Safety**: Native binary compilation via Kotlin/Native for iOS and standard JVM bytecode on Android.
-- **Coroutines & Flow**: Reactive state synchronization across Swift and Kotlin boundaries.
-''',
-    ),
-    BlogPost(
-      title: 'Modern Android Live Wallpapers: OpenGL ES & Jetpack Compose Performance',
-      slug: 'android-live-wallpapers-with-opengl-es-performance-optimization-guide',
-      date: 'July 15, 2026',
-      excerpt:
-          'Architecting 60fps battery-efficient Android live wallpapers using OpenGL ES shaders, SurfaceHolders, and Material You theming.',
+      title: 'Android NPU Acceleration: Implementing ONNX Runtime for Edge AI',
+      slug: 'android-npu-acceleration-implementing-onnx-runtime-for-ml-inference',
+      date: 'Jul 28, 2026',
+      excerpt: 'Achieving sub-50ms on-device machine learning inference on Qualcomm and MediaTek NPUs using NNAPI and ONNX Runtime.',
       coverImage: 'https://images.unsplash.com/photo-1607252650355-f7fd0460ccdb?auto=format&fit=crop&q=80&w=1200',
-      category: 'Android',
+      category: 'Android & KMP',
+      readTime: 7,
+      tags: ['Android', 'NPU', 'ONNX', 'Machine Learning', 'Edge AI'],
+      content: '''# Android NPU Acceleration: ONNX Runtime for Edge AI
+
+Running neural networks on mobile CPUs quickly leads to battery drain and thermal throttling. Leveraging dedicated Neural Processing Units (NPUs) unlocks constant 60fps vision and NLP pipelines.
+''',
+    ),
+    BlogPost(
+      title: 'Offline-First State Synchronization with CRDTs in Flutter',
+      slug: 'offline-first-mobile-apps-crdts-for-conflict-free-replication-in-flutter',
+      date: 'Jul 20, 2026',
+      excerpt: 'Building bulletproof offline-first replication engines using Conflict-free Replicated Data Types (CRDTs) and SQLite.',
+      coverImage: 'https://images.unsplash.com/photo-1451187580459-43490279c0fa?auto=format&fit=crop&q=80&w=1200',
+      category: 'System Design',
+      readTime: 9,
+      tags: ['Offline-First', 'CRDT', 'SQLite', 'Distributed Systems'],
+      content: '''# Offline-First State Synchronization with CRDTs
+
+Mobile devices are inherently distributed nodes with intermittent connectivity. CRDTs enable deterministic, conflict-free state merging across devices without central locks.
+''',
+    ),
+    BlogPost(
+      title: 'Building Developer Tools in 2026: From CLI Design to AI Extensions',
+      slug: 'building-developer-tools-in-2026-from-cli-design-to-ai-assisted-extensions',
+      date: 'Jul 15, 2026',
+      excerpt: 'Creating developer tools that combine high-performance terminal UX, Model Context Protocol servers, and automated pipelines.',
+      coverImage: 'https://images.unsplash.com/photo-1526374965328-7f61d4dc18c5?auto=format&fit=crop&q=80&w=1200',
+      category: 'Dev Tools',
       readTime: 5,
-      tags: ['Android', 'OpenGL ES', 'Live Wallpaper', 'Graphics'],
-      content: '''
-# Modern Android Live Wallpapers: OpenGL ES Optimization
+      tags: ['DevTools', 'CLI', 'Automation', 'Productivity'],
+      content: '''# Building Developer Tools in 2026
 
-Building live wallpapers demands rigorous performance discipline. Unlike standard applications, a wallpaper shares GPU cycles directly with the home launcher and background services.
-
-## Key Performance Pillars
-
-1. **SurfaceHolder Lifecycle**: Never render when the screen is locked or hidden. Use visibility callbacks to halt GL threads immediately.
-2. **Vsync Clamping**: Throttle rendering to match display refresh rates (60Hz / 120Hz) rather than free-wheeling.
-3. **Day/Night & Material You Sync**: Listen for dynamic system color palette shifts using Android 12+ WallpaperColors APIs.
-
-These optimizations guarantee zero background battery drain while delivering smooth dynamic visual effects.
+Modern developer tooling demands instantaneous CLI execution, intelligent error diagnosis, and seamless IDE integration.
 ''',
     ),
   ];
