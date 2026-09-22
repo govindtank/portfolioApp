@@ -36,8 +36,10 @@ jobs:
       - name: Build Flutter Web (CanvasKit)
         run: flutter build web --release --base-href "/portfolioApp/" --web-renderer canvaskit
 
-      - name: Create .nojekyll file
-        run: touch build/web/.nojekyll
+      - name: Copy static files (Privacy Policy)
+        run: |
+          cp privacy_policy.html build/web/privacy_policy.html 2>/dev/null || true
+          touch build/web/.nojekyll
 
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
