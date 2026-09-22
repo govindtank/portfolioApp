@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
 class ThemeProvider extends ChangeNotifier {
-  bool _isDarkMode = false; // Dark mode by default for professional techy aesthetic
+  bool _isDarkMode = true; // Dark mode by default for professional techy aesthetic
   String _accentName = 'Cyber Sky';
 
   bool get isDarkMode => _isDarkMode;
