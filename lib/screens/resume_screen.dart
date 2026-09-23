@@ -182,13 +182,20 @@ class _ResumeScreenState extends State<ResumeScreen> {
                             height: 12,
                             child: CircularProgressIndicator(strokeWidth: 2, color: primary),
                           )
-                        : Text(
-                            '$_visitorCount verified views',
-                            style: TextStyle(
-                              fontSize: 12,
-                              fontWeight: FontWeight.w600,
-                              color: isDark ? AppColors.darkTextSecondary : AppColors.lightTextSecondary,
-                            ),
+                        : TweenAnimationBuilder<int>(
+                            tween: IntTween(begin: 0, end: _visitorCount),
+                            duration: const Duration(milliseconds: 1200),
+                            curve: Curves.easeOutExpo,
+                            builder: (context, val, _) {
+                              return Text(
+                                '$val verified views',
+                                style: TextStyle(
+                                  fontSize: 12,
+                                  fontWeight: FontWeight.w600,
+                                  color: isDark ? AppColors.darkTextSecondary : AppColors.lightTextSecondary,
+                                ),
+                              );
+                            },
                           ),
                   ],
                 ),

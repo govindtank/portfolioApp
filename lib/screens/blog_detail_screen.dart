@@ -5,6 +5,7 @@ import 'package:url_launcher/url_launcher.dart';
 import '../core/theme/app_theme.dart';
 import '../models/blog_post.dart';
 import '../services/blog_service.dart';
+import '../services/visitor_counter_service.dart';
 
 class BlogDetailScreen extends StatefulWidget {
   final BlogPost post;
@@ -23,6 +24,10 @@ class _BlogDetailScreenState extends State<BlogDetailScreen> {
   @override
   void initState() {
     super.initState();
+    VisitorCounterService.trackPageView(
+      '/blog/${widget.post.slug}',
+      title: widget.post.title,
+    );
     _loadContent();
   }
 
@@ -301,17 +306,35 @@ class _BlogDetailScreenState extends State<BlogDetailScreen> {
                               ),
                             ),
                             const SizedBox(height: 12),
-                            ElevatedButton.icon(
-                              onPressed: _openInBrowser,
-                              icon: const Icon(Icons.open_in_browser_rounded, size: 14),
-                              label: const Text('Read on Web (govindtank.github.io)'),
-                              style: ElevatedButton.styleFrom(
-                                backgroundColor: primary,
-                                foregroundColor: Colors.black,
-                                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
-                                textStyle: const TextStyle(fontWeight: FontWeight.w700, fontSize: 12),
-                                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-                              ),
+                            Wrap(
+                              spacing: 8,
+                              runSpacing: 8,
+                              children: [
+                                ElevatedButton.icon(
+                                  onPressed: _openInBrowser,
+                                  icon: const Icon(Icons.open_in_browser_rounded, size: 14),
+                                  label: const Text('Read on Web (govindtank.github.io)'),
+                                  style: ElevatedButton.styleFrom(
+                                    backgroundColor: primary,
+                                    foregroundColor: Colors.black,
+                                    padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+                                    textStyle: const TextStyle(fontWeight: FontWeight.w700, fontSize: 12),
+                                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                                  ),
+                                ),
+                                OutlinedButton.icon(
+                                  onPressed: () => _openInBrowser(),
+                                  icon: const Icon(Icons.forum_outlined, size: 14),
+                                  label: const Text('Join Discussion & Comments'),
+                                  style: OutlinedButton.styleFrom(
+                                    foregroundColor: isDark ? Colors.white : AppColors.lightTextPrimary,
+                                    side: BorderSide(color: isDark ? AppColors.darkBorderLight : AppColors.lightBorder),
+                                    padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+                                    textStyle: const TextStyle(fontWeight: FontWeight.w600, fontSize: 12),
+                                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                                  ),
+                                ),
+                              ],
                             ),
                           ],
                         ),
