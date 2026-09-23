@@ -1,3 +1,4 @@
+import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
@@ -105,52 +106,102 @@ class _MainShellState extends State<MainShell> {
           const SizedBox(width: 8),
         ],
       ),
-      body: IndexedStack(
-        index: _currentIndex,
-        children: tabs,
+      body: Stack(
+        children: [
+          // Main content
+          IndexedStack(
+            index: _currentIndex,
+            children: tabs,
+          ),
+          
+          // Floating Glass Dock
+          Positioned(
+            bottom: 24,
+            left: 0,
+            right: 0,
+            child: _buildFloatingDock(isDark, primary),
+          ),
+        ],
       ),
-      bottomNavigationBar: Container(
-        decoration: BoxDecoration(
-          color: (isDark ? AppColors.darkSurface : AppColors.lightSurface).withOpacity(0.85),
-          border: Border(
-            top: BorderSide(
-              color: isDark ? AppColors.darkBorder : AppColors.lightBorder,
-              width: 1,
+    ));
+  }
+
+  Widget _buildFloatingDock(bool isDark, Color primary) {
+    return Center(
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(32),
+        child: BackdropFilter(
+          filter: ImageFilter.blur(sigmaX: 12, sigmaY: 12),
+          child: Container(
+            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
+            decoration: BoxDecoration(
+              color: isDark ? const Color(0xFF0F172A).withValues(alpha: 0.75) : Colors.white.withValues(alpha: 0.8),
+              borderRadius: BorderRadius.circular(32),
+              border: Border.all(
+                color: isDark ? Colors.white.withValues(alpha: 0.1) : Colors.black.withValues(alpha: 0.05),
+                width: 1,
+              ),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withValues(alpha: 0.15),
+                  blurRadius: 20,
+                  offset: const Offset(0, 10),
+                ),
+              ],
+            ),
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                _buildNavItem(0, Icons.dashboard_outlined, Icons.dashboard_rounded, 'Overview', primary, isDark),
+                _buildNavItem(1, Icons.rocket_launch_outlined, Icons.rocket_launch_rounded, 'Projects', primary, isDark),
+                _buildNavItem(2, Icons.auto_stories_outlined, Icons.auto_stories_rounded, 'Articles', primary, isDark),
+                _buildNavItem(3, Icons.badge_outlined, Icons.badge_rounded, 'Resume', primary, isDark),
+              ],
             ),
           ),
         ),
-        child: NavigationBar(
-          selectedIndex: _currentIndex,
-          onDestinationSelected: _onTabSelected,
-          backgroundColor: Colors.transparent,
-          indicatorColor: primary.withOpacity(isDark ? 0.25 : 0.15),
-          elevation: 0,
-          labelBehavior: NavigationDestinationLabelBehavior.alwaysShow,
-          destinations: [
-            NavigationDestination(
-              icon: const Icon(Icons.dashboard_outlined),
-              selectedIcon: Icon(Icons.dashboard_rounded, color: primary),
-              label: 'Overview',
+      ),
+    );
+  }
+
+  Widget _buildNavItem(int index, IconData iconOutlined, IconData iconFilled, String label, Color primary, bool isDark) {
+    final isSelected = _currentIndex == index;
+    return GestureDetector(
+      onTap: () => _onTabSelected(index),
+      behavior: HitTestBehavior.opaque,
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 250),
+        curve: Curves.easeOutExpo,
+        padding: EdgeInsets.symmetric(horizontal: isSelected ? 16 : 12, vertical: 8),
+        margin: const EdgeInsets.symmetric(horizontal: 4),
+        decoration: BoxDecoration(
+          color: isSelected ? primary.withValues(alpha: 0.15) : Colors.transparent,
+          borderRadius: BorderRadius.circular(24),
+        ),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(
+              isSelected ? iconFilled : iconOutlined,
+              color: isSelected ? primary : (isDark ? AppColors.darkTextMuted : AppColors.lightTextMuted),
+              size: 20,
             ),
-            NavigationDestination(
-              icon: const Icon(Icons.rocket_launch_outlined),
-              selectedIcon: Icon(Icons.rocket_launch_rounded, color: primary),
-              label: 'Projects',
-            ),
-            NavigationDestination(
-              icon: const Icon(Icons.auto_stories_outlined),
-              selectedIcon: Icon(Icons.auto_stories_rounded, color: primary),
-              label: 'Articles',
-            ),
-            NavigationDestination(
-              icon: const Icon(Icons.badge_outlined),
-              selectedIcon: Icon(Icons.badge_rounded, color: primary),
-              label: 'Resume',
-            ),
+            if (isSelected) ...[
+              const SizedBox(width: 6),
+              Text(
+                label,
+                style: TextStyle(
+                  fontSize: 12,
+                  fontWeight: FontWeight.w700,
+                  color: primary,
+                  letterSpacing: 0.3,
+                ),
+              ),
+            ]
           ],
         ),
       ),
-    ));
+    );
   }
 
   void _showThemeSettings(BuildContext context, ThemeProvider provider) {

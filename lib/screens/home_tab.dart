@@ -51,35 +51,30 @@ class HomeTab extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                // 1. HERO ARCHITECT CARD
-                _buildHeroCard(context, isMobile, isDark, primary),
-
-                const SizedBox(height: 20),
-
-                // 2. KEY METRICS MATRIX
-                _buildMetricsRow(context, isMobile, isDark, primary),
+                // 1. STATUS HUD (merged metrics & availability)
+                _buildStatusHUD(context, isMobile, isDark, primary),
 
                 const SizedBox(height: 24),
 
-                // 3. GITHUB ACTIVITY & INTERACTIVE SNAKE MATRIX (MOTION FUN TWIST)
+                // 2. GITHUB ACTIVITY & INTERACTIVE SNAKE MATRIX (MOTION FUN TWIST)
                 const GithubSnakeMatrix().animate().fadeIn(delay: 200.ms, duration: 400.ms),
 
                 const SizedBox(height: 24),
 
-                // 4. SKILLS & ARCHITECTURE TOOLCHAIN
+                // 3. SKILLS & ARCHITECTURE TOOLCHAIN
                 _buildSkillsMatrix(context, isMobile, isDark, primary),
 
                 const SizedBox(height: 24),
 
-                // 5. LATEST ARCHITECTURAL LOGS / BLOG TEASER
+                // 4. LATEST ARCHITECTURAL LOGS / BLOG TEASER
                 _buildBlogTeaser(context, isMobile, isDark, primary),
 
                 const SizedBox(height: 24),
 
-                // 6. QUICK CONNECT BANNER
+                // 5. QUICK CONNECT BANNER
                 _buildConnectBanner(context, isMobile, isDark, primary),
 
-                const SizedBox(height: 80),
+                const SizedBox(height: 120), // Extra space for floating dock
               ],
             ),
           ),
@@ -88,331 +83,196 @@ class HomeTab extends StatelessWidget {
     );
   }
 
-  Widget _buildHeroCard(BuildContext context, bool isMobile, bool isDark, Color primary) {
-    final data = portfolioData;
-
+  Widget _buildStatusHUD(BuildContext context, bool isMobile, bool isDark, Color primary) {
     return Container(
       decoration: BoxDecoration(
-        color: isDark ? AppColors.darkSurface : AppColors.lightSurface,
-        borderRadius: BorderRadius.circular(20),
+        color: isDark ? const Color(0xFF0F172A).withValues(alpha: 0.8) : Colors.white.withValues(alpha: 0.85),
+        borderRadius: BorderRadius.circular(24),
         border: Border.all(
-          color: isDark ? AppColors.darkBorder : AppColors.lightBorder,
-          width: 1.5,
+          color: isDark ? Colors.white.withValues(alpha: 0.1) : Colors.black.withValues(alpha: 0.06),
+          width: 1.2,
         ),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(isDark ? 0.35 : 0.08),
-            blurRadius: 20,
-            offset: const Offset(0, 8),
+            color: Colors.black.withValues(alpha: isDark ? 0.3 : 0.05),
+            blurRadius: 24,
+            offset: const Offset(0, 10),
           ),
         ],
       ),
       child: Padding(
-        padding: EdgeInsets.all(isMobile ? 18 : 28),
+        padding: EdgeInsets.all(isMobile ? 18 : 24),
         child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            if (!isMobile)
-              Row(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  // Avatar with Cyber Glow Ring
-                  _buildProfileAvatar(150, isDark, primary),
-                  const SizedBox(width: 28),
-                  // Bio Details
-                  Expanded(
-                    child: _buildHeroBioContent(context, data, isDark, primary),
+            // Top Status Pill
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+                  decoration: BoxDecoration(
+                    color: AppColors.success.withValues(alpha: 0.15),
+                    borderRadius: BorderRadius.circular(20),
+                    border: Border.all(color: AppColors.success.withValues(alpha: 0.4)),
+                  ),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Container(
+                        width: 7,
+                        height: 7,
+                        decoration: const BoxDecoration(
+                          shape: BoxShape.circle,
+                          color: AppColors.success,
+                        ),
+                      ),
+                      const SizedBox(width: 6),
+                      Text(
+                        'AVAILABLE FOR ARCHITECTURE ROLES',
+                        style: const TextStyle(
+                          color: AppColors.success,
+                          fontSize: 10,
+                          fontWeight: FontWeight.w700,
+                          letterSpacing: 0.8,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                Text(
+                  'v2.0 PRO',
+                  style: GoogleFonts.firaCode(
+                    fontSize: 11,
+                    fontWeight: FontWeight.w700,
+                    color: primary,
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 16),
+
+            // Animated Headline
+            DefaultTextStyle(
+              style: GoogleFonts.spaceGrotesk(
+                fontSize: isMobile ? 18 : 22,
+                fontWeight: FontWeight.w800,
+                color: isDark ? AppColors.darkTextPrimary : AppColors.lightTextPrimary,
+                letterSpacing: -0.3,
+                height: 1.3,
+              ),
+              child: AnimatedTextKit(
+                repeatForever: true,
+                animatedTexts: [
+                  TypewriterAnimatedText(
+                    'Architecting High-Performance Mobile Ecosystems & AI Systems.',
+                    speed: const Duration(milliseconds: 40),
+                  ),
+                  TypewriterAnimatedText(
+                    'Kotlin Multiplatform • Flutter Impeller • Agentic AI Workflows.',
+                    speed: const Duration(milliseconds: 40),
                   ),
                 ],
-              )
-            else
-              Column(
-                children: [
-                  _buildProfileAvatar(125, isDark, primary),
-                  const SizedBox(height: 18),
-                  _buildHeroBioContent(context, data, isDark, primary, isCentered: true),
-                ],
               ),
+            ),
+            const SizedBox(height: 18),
+
+            // High-Impact Proof Matrix
+            Wrap(
+              spacing: 8,
+              runSpacing: 8,
+              children: [
+                _buildHUDMetricChip('9+ Yrs', 'Experience', Icons.timeline_rounded, primary, isDark),
+                _buildHUDMetricChip('100k+', 'Active Users', Icons.group_outlined, primary, isDark),
+                _buildHUDMetricChip('99.95%', 'Crash-Free SLA', Icons.shield_outlined, primary, isDark),
+                _buildHUDMetricChip('110+', 'Tech Articles', Icons.menu_book_rounded, primary, isDark),
+              ],
+            ),
+            const SizedBox(height: 18),
+
+            // Direct Exploration Actions
+            Wrap(
+              spacing: 8,
+              runSpacing: 8,
+              children: [
+                ElevatedButton.icon(
+                  onPressed: onNavigateToProjects,
+                  icon: const Icon(Icons.rocket_launch_rounded, size: 14),
+                  label: const Text('Projects Vault'),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: primary,
+                    foregroundColor: Colors.black,
+                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+                    textStyle: const TextStyle(fontWeight: FontWeight.w700, fontSize: 12),
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                  ),
+                ),
+                OutlinedButton.icon(
+                  onPressed: onNavigateToBlogs,
+                  icon: const Icon(Icons.auto_stories_rounded, size: 14),
+                  label: const Text('Read Deep Dives'),
+                  style: OutlinedButton.styleFrom(
+                    foregroundColor: isDark ? Colors.white : AppColors.lightTextPrimary,
+                    side: BorderSide(color: isDark ? AppColors.darkBorderLight : AppColors.lightBorder),
+                    padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+                    textStyle: const TextStyle(fontWeight: FontWeight.w600, fontSize: 12),
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                  ),
+                ),
+                IconButton(
+                  tooltip: 'GitHub',
+                  icon: const Icon(Icons.code_rounded, size: 18),
+                  color: primary,
+                  onPressed: () => _launchUrl('https://github.com/govindtank'),
+                ),
+                IconButton(
+                  tooltip: 'LinkedIn',
+                  icon: const Icon(Icons.business_center_rounded, size: 18),
+                  color: primary,
+                  onPressed: () => _launchUrl('https://linkedin.com/in/govindtank'),
+                ),
+              ],
+            ),
           ],
         ),
       ),
-    ).animate().fadeIn(duration: 500.ms).slideY(begin: 0.05);
+    ).animate().fadeIn(duration: 400.ms).slideY(begin: 0.05);
   }
 
-  Widget _buildProfileAvatar(double size, bool isDark, Color primary) {
-    return Stack(
-      alignment: Alignment.center,
-      children: [
-        // Outer pulsing ring
-        Container(
-          width: size + 16,
-          height: size + 16,
-          decoration: BoxDecoration(
-            shape: BoxShape.circle,
-            gradient: SweepGradient(
-              colors: [
-                primary,
-                AppColors.secondary,
-                AppColors.accentNeon,
-                primary,
-              ],
-            ),
-          ),
+  Widget _buildHUDMetricChip(String val, String label, IconData icon, Color primary, bool isDark) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+      decoration: BoxDecoration(
+        color: isDark ? const Color(0xFF1E293B).withValues(alpha: 0.7) : const Color(0xFFF1F5F9),
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(
+          color: isDark ? Colors.white.withValues(alpha: 0.06) : Colors.black.withValues(alpha: 0.04),
         ),
-        // Inner gap
-        Container(
-          width: size + 8,
-          height: size + 8,
-          decoration: BoxDecoration(
-            shape: BoxShape.circle,
-            color: isDark ? AppColors.darkBackground : AppColors.lightBackground,
-          ),
-        ),
-        // Photo
-        Container(
-          width: size,
-          height: size,
-          decoration: BoxDecoration(
-            shape: BoxShape.circle,
-            image: const DecorationImage(
-              image: AssetImage('assets/images/profile.png'),
-              fit: BoxFit.cover,
-            ),
-            boxShadow: [
-              BoxShadow(
-                color: primary.withOpacity(0.35),
-                blurRadius: 20,
-                spreadRadius: 2,
-              ),
-            ],
-          ),
-        ),
-      ],
-    );
-  }
-
-  Widget _buildHeroBioContent(
-    BuildContext context,
-    Person data,
-    bool isDark,
-    Color primary, {
-    bool isCentered = false,
-  }) {
-    return Column(
-      crossAxisAlignment: isCentered ? CrossAxisAlignment.center : CrossAxisAlignment.start,
-      children: [
-        // Availability Status Pill
-        Container(
-          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
-          decoration: BoxDecoration(
-            color: AppColors.success.withOpacity(0.15),
-            borderRadius: BorderRadius.circular(20),
-            border: Border.all(color: AppColors.success.withOpacity(0.4)),
-          ),
-          child: Row(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Container(
-                width: 7,
-                height: 7,
-                decoration: const BoxDecoration(
-                  shape: BoxShape.circle,
-                  color: AppColors.success,
-                ),
-              ),
-              const SizedBox(width: 6),
-              Flexible(
-                child: Text(
-                  'Open to System Architecture & Mobile Roles',
-                  style: const TextStyle(
-                    color: AppColors.success,
-                    fontSize: 11,
-                    fontWeight: FontWeight.w600,
-                  ),
-                  overflow: TextOverflow.ellipsis,
-                ),
-              ),
-            ],
-          ),
-        ),
-        const SizedBox(height: 12),
-
-        // Name
-        Text(
-          data.name,
-          textAlign: isCentered ? TextAlign.center : TextAlign.start,
-          style: GoogleFonts.spaceGrotesk(
-            fontSize: isCentered ? 26 : 32,
-            fontWeight: FontWeight.w800,
-            color: isDark ? AppColors.darkTextPrimary : AppColors.lightTextPrimary,
-            letterSpacing: -0.5,
-          ),
-        ),
-        const SizedBox(height: 4),
-
-        // Animated Typewriter Role
-        SizedBox(
-          height: 24,
-          child: DefaultTextStyle(
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(icon, size: 16, color: primary),
+          const SizedBox(width: 6),
+          Text(
+            val,
             style: GoogleFonts.spaceGrotesk(
-              fontSize: isCentered ? 15 : 17,
-              fontWeight: FontWeight.w600,
-              color: primary,
-            ),
-            textAlign: isCentered ? TextAlign.center : TextAlign.start,
-            child: AnimatedTextKit(
-              repeatForever: true,
-              animatedTexts: [
-                TypewriterAnimatedText(
-                  'Senior Lead Architect',
-                  speed: const Duration(milliseconds: 70),
-                ),
-                TypewriterAnimatedText(
-                  'Android Native & KMP Expert',
-                  speed: const Duration(milliseconds: 70),
-                ),
-                TypewriterAnimatedText(
-                  'Flutter & Impeller Specialist',
-                  speed: const Duration(milliseconds: 70),
-                ),
-                TypewriterAnimatedText(
-                  'Agentic AI & MCP Engineer',
-                  speed: const Duration(milliseconds: 70),
-                ),
-              ],
+              fontSize: 13,
+              fontWeight: FontWeight.w800,
+              color: isDark ? AppColors.darkTextPrimary : AppColors.lightTextPrimary,
             ),
           ),
-        ),
-        const SizedBox(height: 10),
-
-        // Summary
-        Text(
-          data.summary,
-          textAlign: isCentered ? TextAlign.center : TextAlign.start,
-          style: TextStyle(
-            fontSize: 13,
-            height: 1.55,
-            color: isDark ? AppColors.darkTextSecondary : AppColors.lightTextSecondary,
+          const SizedBox(width: 4),
+          Text(
+            label,
+            style: TextStyle(
+              fontSize: 11,
+              color: isDark ? AppColors.darkTextMuted : AppColors.lightTextMuted,
+            ),
           ),
-        ),
-        const SizedBox(height: 16),
-
-        // Action Buttons
-        Wrap(
-          spacing: 10,
-          runSpacing: 10,
-          alignment: isCentered ? WrapAlignment.center : WrapAlignment.start,
-          children: [
-            ElevatedButton.icon(
-              onPressed: onNavigateToProjects,
-              icon: const Icon(Icons.layers_rounded, size: 15),
-              label: const Text('Explore Projects'),
-              style: ElevatedButton.styleFrom(
-                backgroundColor: primary,
-                foregroundColor: Colors.black,
-                elevation: 0,
-                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 11),
-                textStyle: const TextStyle(fontWeight: FontWeight.w700, fontSize: 12),
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-              ),
-            ),
-            OutlinedButton.icon(
-              onPressed: onNavigateToBlogs,
-              icon: const Icon(Icons.article_outlined, size: 15),
-              label: const Text('Read Tech Logs'),
-              style: OutlinedButton.styleFrom(
-                foregroundColor: isDark ? Colors.white : AppColors.lightTextPrimary,
-                side: BorderSide(color: isDark ? AppColors.darkBorderLight : AppColors.lightBorder),
-                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 11),
-                textStyle: const TextStyle(fontWeight: FontWeight.w600, fontSize: 12),
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-              ),
-            ),
-            IconButton(
-              tooltip: 'LinkedIn',
-              icon: const Icon(Icons.business_center_rounded, size: 20),
-              color: primary,
-              onPressed: () => _launchUrl('https://linkedin.com/in/govindtank'),
-            ),
-            IconButton(
-              tooltip: 'GitHub',
-              icon: const Icon(Icons.code_rounded, size: 20),
-              color: primary,
-              onPressed: () => _launchUrl('https://github.com/govindtank'),
-            ),
-            IconButton(
-              tooltip: 'Resume',
-              icon: const Icon(Icons.description_outlined, size: 20),
-              color: primary,
-              onPressed: onNavigateToResume,
-            ),
-          ],
-        ),
-      ],
+        ],
+      ),
     );
-  }
-
-  Widget _buildMetricsRow(BuildContext context, bool isMobile, bool isDark, Color primary) {
-    final metrics = [
-      {'val': '9+ Yrs', 'label': 'Experience', 'icon': Icons.trending_up_rounded},
-      {'val': '100k+', 'label': 'Active Users', 'icon': Icons.people_alt_rounded},
-      {'val': '99.95%', 'label': 'Crash-Free', 'icon': Icons.security_rounded},
-      {'val': '110+', 'label': 'Tech Blogs', 'icon': Icons.menu_book_rounded},
-    ];
-
-    return LayoutBuilder(
-      builder: (context, constraints) {
-        return Wrap(
-          spacing: 10,
-          runSpacing: 10,
-          children: metrics.map((m) {
-            final cardWidth = constraints.maxWidth > 700
-                ? (constraints.maxWidth - 30) / 4
-                : (constraints.maxWidth > 320 ? (constraints.maxWidth - 10) / 2 : constraints.maxWidth);
-
-            return Container(
-              width: cardWidth,
-              padding: const EdgeInsets.symmetric(vertical: 14, horizontal: 12),
-              decoration: BoxDecoration(
-                color: isDark ? AppColors.darkSurface : AppColors.lightSurface,
-                borderRadius: BorderRadius.circular(14),
-                border: Border.all(
-                  color: isDark ? AppColors.darkBorder : AppColors.lightBorder,
-                ),
-              ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Icon(m['icon'] as IconData, color: primary, size: 20),
-                  const SizedBox(height: 8),
-                  FittedBox(
-                    fit: BoxFit.scaleDown,
-                    alignment: Alignment.centerLeft,
-                    child: Text(
-                      m['val'] as String,
-                      style: GoogleFonts.spaceGrotesk(
-                        fontSize: 20,
-                        fontWeight: FontWeight.w800,
-                        color: isDark ? AppColors.darkTextPrimary : AppColors.lightTextPrimary,
-                      ),
-                    ),
-                  ),
-                  const SizedBox(height: 2),
-                  Text(
-                    m['label'] as String,
-                    style: TextStyle(
-                      fontSize: 11,
-                      color: isDark ? AppColors.darkTextMuted : AppColors.lightTextMuted,
-                    ),
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                ],
-              ),
-            );
-          }).toList(),
-        );
-      },
-    ).animate().fadeIn(delay: 150.ms, duration: 400.ms);
   }
 
   Widget _buildSkillsMatrix(BuildContext context, bool isMobile, bool isDark, Color primary) {
