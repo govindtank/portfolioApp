@@ -86,15 +86,15 @@ class HomeTab extends StatelessWidget {
   Widget _buildStatusHUD(BuildContext context, bool isMobile, bool isDark, Color primary) {
     return Container(
       decoration: BoxDecoration(
-        color: isDark ? const Color(0xFF0F172A).withValues(alpha: 0.8) : Colors.white.withValues(alpha: 0.85),
+        color: isDark ? const Color(0xFF0F172A).withOpacity(0.8) : Colors.white.withOpacity(0.85),
         borderRadius: BorderRadius.circular(24),
         border: Border.all(
-          color: isDark ? Colors.white.withValues(alpha: 0.1) : Colors.black.withValues(alpha: 0.06),
+          color: isDark ? Colors.white.withOpacity(0.1) : Colors.black.withOpacity(0.06),
           width: 1.2,
         ),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withValues(alpha: isDark ? 0.3 : 0.05),
+            color: Colors.black.withOpacity(isDark ? 0.3 : 0.05),
             blurRadius: 24,
             offset: const Offset(0, 10),
           ),
@@ -112,9 +112,9 @@ class HomeTab extends StatelessWidget {
                 Container(
                   padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
                   decoration: BoxDecoration(
-                    color: AppColors.success.withValues(alpha: 0.15),
+                    color: AppColors.success.withOpacity(0.15),
                     borderRadius: BorderRadius.circular(20),
-                    border: Border.all(color: AppColors.success.withValues(alpha: 0.4)),
+                    border: Border.all(color: AppColors.success.withOpacity(0.4)),
                   ),
                   child: Row(
                     mainAxisSize: MainAxisSize.min,
@@ -243,10 +243,10 @@ class HomeTab extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
       decoration: BoxDecoration(
-        color: isDark ? const Color(0xFF1E293B).withValues(alpha: 0.7) : const Color(0xFFF1F5F9),
+        color: isDark ? const Color(0xFF1E293B).withOpacity(0.7) : const Color(0xFFF1F5F9),
         borderRadius: BorderRadius.circular(12),
         border: Border.all(
-          color: isDark ? Colors.white.withValues(alpha: 0.06) : Colors.black.withValues(alpha: 0.04),
+          color: isDark ? Colors.white.withOpacity(0.06) : Colors.black.withOpacity(0.04),
         ),
       ),
       child: Row(

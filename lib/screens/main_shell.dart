@@ -135,15 +135,15 @@ class _MainShellState extends State<MainShell> {
           child: Container(
             padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
             decoration: BoxDecoration(
-              color: isDark ? const Color(0xFF0F172A).withValues(alpha: 0.75) : Colors.white.withValues(alpha: 0.8),
+              color: isDark ? const Color(0xFF0F172A).withOpacity(0.75) : Colors.white.withOpacity(0.8),
               borderRadius: BorderRadius.circular(32),
               border: Border.all(
-                color: isDark ? Colors.white.withValues(alpha: 0.1) : Colors.black.withValues(alpha: 0.05),
+                color: isDark ? Colors.white.withOpacity(0.1) : Colors.black.withOpacity(0.05),
                 width: 1,
               ),
               boxShadow: [
                 BoxShadow(
-                  color: Colors.black.withValues(alpha: 0.15),
+                  color: Colors.black.withOpacity(0.15),
                   blurRadius: 20,
                   offset: const Offset(0, 10),
                 ),
@@ -175,7 +175,7 @@ class _MainShellState extends State<MainShell> {
         padding: EdgeInsets.symmetric(horizontal: isSelected ? 16 : 12, vertical: 8),
         margin: const EdgeInsets.symmetric(horizontal: 4),
         decoration: BoxDecoration(
-          color: isSelected ? primary.withValues(alpha: 0.15) : Colors.transparent,
+          color: isSelected ? primary.withOpacity(0.15) : Colors.transparent,
           borderRadius: BorderRadius.circular(24),
         ),
         child: Row(
