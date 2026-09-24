@@ -5,12 +5,14 @@ import 'package:url_launcher/url_launcher.dart';
 import 'package:animated_text_kit/animated_text_kit.dart';
 import '../core/theme/app_theme.dart';
 import '../core/widgets/github_snake_matrix.dart';
+import '../core/widgets/system_architecture_diagram.dart';
 import '../data/portfolio_data.dart';
 import '../models/portfolio_data.dart';
 import '../services/blog_service.dart';
+import '../services/visitor_counter_service.dart';
 import 'blog_detail_screen.dart';
 
-class HomeTab extends StatelessWidget {
+class HomeTab extends StatefulWidget {
   final VoidCallback onNavigateToBlogs;
   final VoidCallback onNavigateToProjects;
   final VoidCallback onNavigateToResume;
@@ -21,6 +23,31 @@ class HomeTab extends StatelessWidget {
     required this.onNavigateToProjects,
     required this.onNavigateToResume,
   });
+
+  @override
+  State<HomeTab> createState() => _HomeTabState();
+}
+
+class _HomeTabState extends State<HomeTab> {
+  final VisitorCounterService _visitorService = VisitorCounterService();
+  int _liveVisitorCount = 0;
+  bool _isLoadingCount = true;
+
+  @override
+  void initState() {
+    super.initState();
+    _fetchTelemetry();
+  }
+
+  Future<void> _fetchTelemetry() async {
+    final count = await _visitorService.getVisitorCount();
+    if (mounted) {
+      setState(() {
+        _liveVisitorCount = count;
+        _isLoadingCount = false;
+      });
+    }
+  }
 
   void _launchUrl(String url) async {
     final uri = Uri.parse(url);
@@ -51,27 +78,32 @@ class HomeTab extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                // 1. STATUS HUD (merged metrics & availability)
+                // 1. COMMAND CENTER STATUS HUD
                 _buildStatusHUD(context, isMobile, isDark, primary),
 
                 const SizedBox(height: 24),
 
-                // 2. GITHUB ACTIVITY & INTERACTIVE SNAKE MATRIX (MOTION FUN TWIST)
+                // 2. INTERACTIVE ARCHITECTURE BLUEPRINT (CUSTOM CANVAS NODE DIAGRAM)
+                const SystemArchitectureDiagram(),
+
+                const SizedBox(height: 24),
+
+                // 3. GITHUB ACTIVITY & INTERACTIVE SNAKE MATRIX
                 const GithubSnakeMatrix().animate().fadeIn(delay: 200.ms, duration: 400.ms),
 
                 const SizedBox(height: 24),
 
-                // 3. SKILLS & ARCHITECTURE TOOLCHAIN
+                // 4. CORE ARCHITECTURAL COMPETENCIES & TOOLCHAINS
                 _buildSkillsMatrix(context, isMobile, isDark, primary),
 
                 const SizedBox(height: 24),
 
-                // 4. LATEST ARCHITECTURAL LOGS / BLOG TEASER
+                // 5. LATEST ARCHITECTURAL DEEP DIVES
                 _buildBlogTeaser(context, isMobile, isDark, primary),
 
                 const SizedBox(height: 24),
 
-                // 5. QUICK CONNECT BANNER
+                // 6. QUICK CONNECT BANNER
                 _buildConnectBanner(context, isMobile, isDark, primary),
 
                 const SizedBox(height: 120), // Extra space for floating dock
@@ -86,7 +118,7 @@ class HomeTab extends StatelessWidget {
   Widget _buildStatusHUD(BuildContext context, bool isMobile, bool isDark, Color primary) {
     return Container(
       decoration: BoxDecoration(
-        color: isDark ? const Color(0xFF0F172A).withOpacity(0.8) : Colors.white.withOpacity(0.85),
+        color: isDark ? const Color(0xFF0F172A).withOpacity(0.85) : Colors.white.withOpacity(0.9),
         borderRadius: BorderRadius.circular(24),
         border: Border.all(
           color: isDark ? Colors.white.withOpacity(0.1) : Colors.black.withOpacity(0.06),
@@ -105,9 +137,12 @@ class HomeTab extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Top Status Pill
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            // Top Status & Live Visitor Telemetry Row
+            Wrap(
+              alignment: WrapAlignment.spaceBetween,
+              crossAxisAlignment: WrapCrossAlignment.center,
+              spacing: 10,
+              runSpacing: 8,
               children: [
                 Container(
                   padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
@@ -128,9 +163,9 @@ class HomeTab extends StatelessWidget {
                         ),
                       ),
                       const SizedBox(width: 6),
-                      Text(
-                        'AVAILABLE FOR ARCHITECTURE ROLES',
-                        style: const TextStyle(
+                      const Text(
+                        'OPEN FOR ARCHITECTURE ROLES',
+                        style: TextStyle(
                           color: AppColors.success,
                           fontSize: 10,
                           fontWeight: FontWeight.w700,
@@ -140,19 +175,49 @@ class HomeTab extends StatelessWidget {
                     ],
                   ),
                 ),
-                Text(
-                  'v2.0 PRO',
-                  style: GoogleFonts.firaCode(
-                    fontSize: 11,
-                    fontWeight: FontWeight.w700,
-                    color: primary,
+
+                // Live Telemetry Visitor Pill
+                Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+                  decoration: BoxDecoration(
+                    color: primary.withOpacity(0.12),
+                    borderRadius: BorderRadius.circular(20),
+                    border: Border.all(color: primary.withOpacity(0.3)),
+                  ),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Icon(Icons.remove_red_eye_outlined, size: 13, color: primary),
+                      const SizedBox(width: 6),
+                      _isLoadingCount
+                          ? SizedBox(
+                              width: 10,
+                              height: 10,
+                              child: CircularProgressIndicator(strokeWidth: 1.5, color: primary),
+                            )
+                          : TweenAnimationBuilder<int>(
+                              tween: IntTween(begin: 0, end: _liveVisitorCount),
+                              duration: const Duration(milliseconds: 1200),
+                              curve: Curves.easeOutExpo,
+                              builder: (context, val, _) {
+                                return Text(
+                                  '$val live visits',
+                                  style: GoogleFonts.firaCode(
+                                    fontSize: 11,
+                                    fontWeight: FontWeight.w700,
+                                    color: primary,
+                                  ),
+                                );
+                              },
+                            ),
+                    ],
                   ),
                 ),
               ],
             ),
             const SizedBox(height: 16),
 
-            // Animated Headline
+            // Animated Dual-Tagline Headline
             DefaultTextStyle(
               style: GoogleFonts.spaceGrotesk(
                 fontSize: isMobile ? 18 : 22,
@@ -169,7 +234,7 @@ class HomeTab extends StatelessWidget {
                     speed: const Duration(milliseconds: 40),
                   ),
                   TypewriterAnimatedText(
-                    'Kotlin Multiplatform • Flutter Impeller • Agentic AI Workflows.',
+                    'Kotlin Multiplatform • Flutter Impeller • On-Device VLMs & MCP.',
                     speed: const Duration(milliseconds: 40),
                   ),
                 ],
@@ -196,7 +261,7 @@ class HomeTab extends StatelessWidget {
               runSpacing: 8,
               children: [
                 ElevatedButton.icon(
-                  onPressed: onNavigateToProjects,
+                  onPressed: widget.onNavigateToProjects,
                   icon: const Icon(Icons.rocket_launch_rounded, size: 14),
                   label: const Text('Projects Vault'),
                   style: ElevatedButton.styleFrom(
@@ -208,7 +273,7 @@ class HomeTab extends StatelessWidget {
                   ),
                 ),
                 OutlinedButton.icon(
-                  onPressed: onNavigateToBlogs,
+                  onPressed: widget.onNavigateToBlogs,
                   icon: const Icon(Icons.auto_stories_rounded, size: 14),
                   label: const Text('Read Deep Dives'),
                   style: OutlinedButton.styleFrom(
@@ -392,7 +457,7 @@ class HomeTab extends StatelessWidget {
                 ),
               ),
               TextButton.icon(
-                onPressed: onNavigateToBlogs,
+                onPressed: widget.onNavigateToBlogs,
                 icon: const Icon(Icons.arrow_forward_rounded, size: 13),
                 label: const Text('View All'),
                 style: TextButton.styleFrom(
