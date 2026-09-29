@@ -22,6 +22,12 @@ dependencies:
   carousel_slider: ^4.1.0
   lottie: ^3.1.0
   flutter_markdown: ^0.7.3
+  offline_outbox: '>=1.0.0'
+  cron_schedule: '>=1.0.0'
+  scratch_reveal: '>=1.0.0'
+  currency_field_formatter: '>=1.0.0'
+  ambient_backdrop_glow: '>=1.0.0'
+  segmented_ring_painter: '>=1.0.0'
 
 dev_dependencies:
   flutter_test:
